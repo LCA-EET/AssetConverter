@@ -164,6 +164,34 @@ namespace AssetConverter
 
         }
         
+        static bool IsCharacterByte(byte toCheck)
+        {
+            if(toCheck >= 30 && toCheck <= 39)
+            {
+                //is a digit
+                return true;
+            }
+            else if (toCheck >= 65 && toCheck <= 90)
+            {
+                //is a capital letter
+                return true;
+            }
+            else if (toCheck >= 97 && toCheck <= 122)
+            {
+                //is a capital letter
+                return true;
+            }
+            else if (toCheck == 95)
+            {
+                //is an underscore
+                return true;
+            }
+            else if(toCheck == 35)
+            {
+                return true;
+            }
+            return false;
+        }
         static void UpdateComponentReferences(string directoryPath)
         {
             string[] filesToProcess = Directory.GetFiles(directoryPath);
@@ -172,8 +200,26 @@ namespace AssetConverter
 
                 List<byte> outputBytes = new List<byte>();
                 LogToConsole("Replacing component references in " + filePath);//
-                byte[] input = File.ReadAllBytes(filePath);
-                File.WriteAllBytes(filePath, input);
+                List<byte> input = File.ReadAllBytes(filePath).ToList();
+                for(int i = 0; i < input.Count; i++)
+                {
+                    if (IsCharacterByte(input[i]))
+                    {
+                        if(i + 7 <= (input.Count - 1))
+                        {
+                            string toCheck = Encoding.Latin1.GetString(input.GetRange(i, 8).ToArray()).ToLower();
+                            if (_nameConversion.ContainsKey(toCheck))
+                            {
+                                string replacement = _nameConversion[toCheck];
+                                LogToConsole("... Replaced " + toCheck + " with " + replacement);//
+                                input.RemoveRange(i, 8);
+                                input.InsertRange(i, Encoding.Latin1.GetBytes(replacement.ToUpper()));
+                                i += 7;
+                            }
+                        }
+                    }
+                }
+                File.WriteAllBytes(filePath, input.ToArray());
                 /*
                 string[] inLines = File.ReadAllLines(filePath, Encoding.Latin1);
                 string output = "";
