@@ -45,10 +45,11 @@ namespace AssetConverter
                 Directory.Delete(_postConversionPath, true);
                 Directory.CreateDirectory(_postConversionPath);
             }
-
+            RenameAndCopy(preconversionpath + "baf", "baf");
             RenameAndCopy(preconversionpath + "tis", "tis");
             RenameAndCopy(preconversionpath + "wed", "wed");
             UpdateComponentReferences(_postConversionPath + "wed");
+            DLGtoDConversion(preconversionpath + "dlg");
             /*
             string[] preconversionDirectories = Directory.GetDirectories(preconversionpath);
 
@@ -93,7 +94,7 @@ namespace AssetConverter
             }
             File.WriteAllText("referenceTable.txt", output);
         }
-        
+         
         static string GetName(string filePath)
         {
             string[] splitPath = filePath.Split(@"\");
@@ -181,12 +182,12 @@ namespace AssetConverter
                 //is a capital letter
                 return true;
             }
-            else if (toCheck == 95)
+            else if (toCheck == (byte)95)
             {
                 //is an underscore
                 return true;
             }
-            else if(toCheck == 35)
+            else if(toCheck == (byte)35)
             {
                 return true;
             }
@@ -197,8 +198,6 @@ namespace AssetConverter
             string[] filesToProcess = Directory.GetFiles(directoryPath);
             foreach(string filePath in filesToProcess)
             {
-
-                List<byte> outputBytes = new List<byte>();
                 LogToConsole("Replacing component references in " + filePath);//
                 List<byte> input = File.ReadAllBytes(filePath).ToList();
                 for(int i = 0; i < input.Count; i++)
@@ -207,7 +206,20 @@ namespace AssetConverter
                     {
                         if(i + 7 <= (input.Count - 1))
                         {
-                            string toCheck = Encoding.Latin1.GetString(input.GetRange(i, 8).ToArray()).ToLower();
+                            List<byte> nullRemoved = input.GetRange(i, 8);
+                            List<byte> toConvert = new List<byte>();
+                            for (int j = nullRemoved.Count-1; j >= 0; j--)
+                            {
+                                if (nullRemoved[j] == 0)
+                                {
+                                    nullRemoved.RemoveAt(j);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            string toCheck = Encoding.Latin1.GetString(nullRemoved.ToArray()).ToLower().Trim();
                             if (_nameConversion.ContainsKey(toCheck))
                             {
                                 string replacement = _nameConversion[toCheck];
@@ -220,76 +232,6 @@ namespace AssetConverter
                     }
                 }
                 File.WriteAllBytes(filePath, input.ToArray());
-                /*
-                string[] inLines = File.ReadAllLines(filePath, Encoding.Latin1);
-                string output = "";
-                for (int i = 0; i < inLines.Length; i++)
-                {
-                    string toWrite = inLines[i];
-                    foreach(Match itemMatch in _referenceRegex.Matches(inLines[i]))
-                    {
-                        string captureValue = itemMatch.Value.ToLower();
-                        if (_nameConversion.ContainsKey(captureValue))
-                        {
-                            string replacementValue = _nameConversion[captureValue].ToUpper();
-                            byte[] searchBytes = Encoding.Latin1.GetBytes(itemMatch.Value);
-                            byte[] replacementBytes = Encoding.Latin1.GetBytes(replacementValue);
-                            List<byte> toModify = Encoding.Latin1.GetBytes(toWrite).ToList();
-                            int oldByteLength = toModify.Count;
-                            bool found = false;
-                            int startIndex = 0;
-                            int endIndex = 0;
-                            for (int b = 0; b < toModify.Count; b++)
-                            {
-                                if (toModify[b] == searchBytes[0])
-                                {
-                                    found = true;
-                                    for(int j = 0; j < searchBytes.Length; j++)
-                                    {
-                                        if(toModify.Count > (b + j))
-                                        {
-                                            if (toModify[b + j] != searchBytes[j])
-                                            {
-                                                found = false;
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            found = false;
-                                            break;
-                                        }
-                                    }
-                                    if (found)
-                                    {
-                                        startIndex = b;
-                                        endIndex = b + (searchBytes.Length - 1);
-                                        break;
-                                    }
-                                }
-                            }
-                            if (found)
-                            {
-                                toModify.RemoveRange(startIndex, searchBytes.Length + (replacementBytes.Length - searchBytes.Length));
-                                toModify.InsertRange(startIndex, replacementBytes);
-                            }
-                            toWrite = Encoding.Latin1.GetString(toModify.ToArray());
-                            LogToConsole("... Replaced " + itemMatch.Value + " with " + _nameConversion[captureValue].ToUpper());
-                            LogToConsole("... Byte length, old: " + oldByteLength + ", new: " + toModify.Count);
-                        }
-                        else
-                        {
-                            //LogToConsole("... Matched against unknown reference " + captureValue);
-                        }
-                    }
-                    output += toWrite;
-                    if (i < inLines.Length - 1)
-                    {
-                        output += (char)13;
-                    }
-                }
-                File.WriteAllText(filePath, output, Encoding.Latin1);
-                */
             }
             
         }
