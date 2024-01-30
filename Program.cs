@@ -20,7 +20,7 @@ namespace AssetConverter
             _referenceRegex = new Regex(@"[a-zA-Z0-9_]{3,8}", RegexOptions.Compiled);
             _nameConversion = new Dictionary<string, string>();
             _idTable = new Dictionary<int, int>();
-            _nextID = 100000;
+            _nextID = 1000;
             _idTable.Add(3, 0);
             _idTable.Add(4, 0);
             _idTable.Add(5, 0);
@@ -207,7 +207,6 @@ namespace AssetConverter
                         if(i + 7 <= (input.Count - 1))
                         {
                             List<byte> nullRemoved = input.GetRange(i, 8);
-                            List<byte> toConvert = new List<byte>();
                             for (int j = nullRemoved.Count-1; j >= 0; j--)
                             {
                                 if (nullRemoved[j] == 0)
@@ -225,7 +224,7 @@ namespace AssetConverter
                                 string replacement = _nameConversion[toCheck];
                                 LogToConsole("... Replaced " + toCheck + " with " + replacement);//
                                 input.RemoveRange(i, 8);
-                                input.InsertRange(i, Encoding.Latin1.GetBytes(replacement.ToUpper()));
+                                input.InsertRange(i, Encoding.Latin1.GetBytes(replacement.ToUpper()).Concat(new byte[] {0,0}));
                                 i += 7;
                             }
                         }
@@ -268,15 +267,6 @@ namespace AssetConverter
                     {
                         if (_idTable.ContainsKey(assetName.Length))
                         {
-                            /*
-                            //nextID = _idTable[assetName.Length];
-                            //_idTable[assetName.Length] = nextID + 1;
-                            string toAppend = nextID.ToString();
-                            while(toAppend.Length < assetName.Length - 2)
-                            {
-                                toAppend = "0" + toAppend;
-                            }
-                            */
                             newName = "xa" + GetNextID().ToString();
                             _nameConversion.Add(assetName, newName);
                             File.Copy(assetToProcess, destinationDirectory + @"\" + newName + "." + assetType, true);
