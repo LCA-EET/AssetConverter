@@ -37,6 +37,7 @@ namespace AssetConverter
             {
                 RemoveDLGComponents(_preConversionPath + "dlg");
             }
+            WeiduGenerateTLK();
             ProcessDirectory("bmp");
             ProcessDirectory("baf");
             ProcessDirectory("tis");
@@ -75,6 +76,17 @@ namespace AssetConverter
             
             File.WriteAllText("referenceTable.txt", output);
             */
+        }
+        static void WeiduGenerateTLK()
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo(_weiduPath);
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = _weiduDirectory;
+            startInfo.ArgumentList.Add("--traify-tlk");
+            startInfo.ArgumentList.Add("--out");
+            startInfo.ArgumentList.Add("text.tra");
+            Process conversion = Process.Start(startInfo);
+            conversion.WaitForExit();
         }
         static void RemoveDLGComponents(string dlgDirectory)
         {
@@ -247,46 +259,7 @@ namespace AssetConverter
                 RenameAndCopy(assetDirectory + "dlg", "tra", idIndex);
                 ReplaceDReferences(_postConversionPath + @"d\");
             }
-            static void ReplaceDReferences(string dFileDirectory)
-            {
-                string beginFlag = "BEGIN ~";
-                string externFlag = "EXTERN ~";
-                string[] dFiles = Directory.GetFiles(dFileDirectory);
-                foreach(string dFile in dFiles)
-                {
-                    bool changeMade = false;
-                    string[] lineContents = File.ReadAllLines(dFile);
-                    for (int i = 0; i < lineContents.Length; i++)
-                    {
-                        string reference = "";
-                        if (lineContents[i].StartsWith(beginFlag))
-                        {
-                            reference = lineContents[i].Split(beginFlag)[1].ToLower();
-                        }
-                        if (lineContents[i].Contains(externFlag))
-                        {
-                            reference = lineContents[i].Split(externFlag)[1].ToLower();
-                        }
-                        if (reference != "")
-                        {
-                            reference = reference.Split("~")[0];
-                            LogToConsole("D reference found: " + reference);
-                            if (_nameConversion.ContainsKey(reference))
-                            {
-                                lineContents[i] = lineContents[i].Replace(reference.ToUpper(), _nameConversion[reference].ToUpper());
-                                LogToConsole("Replaced with: " + _nameConversion[reference]);
-                                changeMade = true;
-                            }
-                        }
-
-                    }
-                    if (changeMade)
-                    {
-                        File.WriteAllLines(dFile, lineContents);
-                    }
-                }
-
-            }
+            
 
             static bool IsCharacterByte(byte toCheck)
             {
