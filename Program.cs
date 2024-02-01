@@ -17,6 +17,7 @@ namespace AssetConverter
         private static string _filePrefix;
 
         public static ReferenceGenerator ReferenceTable;
+        public static MasterTRA MasterTRA;
         static void Main(string[] args)
         {
             _filePrefix = "xa";
@@ -87,6 +88,7 @@ namespace AssetConverter
             startInfo.ArgumentList.Add("text.tra");
             Process conversion = Process.Start(startInfo);
             conversion.WaitForExit();
+            MasterTRA = new MasterTRA(_weiduDirectory + "text.tra");
         }
         static void RemoveDLGComponents(string dlgDirectory)
         {
