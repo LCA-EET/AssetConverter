@@ -39,6 +39,8 @@ namespace AssetConverter
                 RemoveDLGComponents(_preConversionPath + "dlg");
             }
             WeiduGenerateTLK();
+            ProcessDirectory("cre");
+            /*
             ProcessDirectory("bmp");
             ProcessDirectory("baf");
             ProcessDirectory("tis");
@@ -48,6 +50,7 @@ namespace AssetConverter
             ProcessDirectory("dlg\\tra");
             ProcessDirectory("itm");
             ProcessDirectory("wav");
+            */
             ReferenceTable.SaveAssetsPostConversion();
             /*
             Console.WriteLine("Processing BAF");
@@ -135,6 +138,9 @@ namespace AssetConverter
                     break;
                 case "bmp":
                     toAdd = new BMP(assetPath, assetType);
+                    break;
+                case "cre":
+                    toAdd = new CRE(assetPath, assetType);
                     break;
                 case "wav":
                     WAV wavAsset = new WAV(assetPath, assetType);

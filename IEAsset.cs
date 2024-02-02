@@ -42,9 +42,8 @@
             {
                 switch (AssetType)
                 {
-                    case "wav":
-                        return 2;
-                    case "itm":
+                    case "are":
+                    case "bmp":
                         return 1;
                     default:
                         return 0;

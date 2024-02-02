@@ -8,15 +8,15 @@ namespace AssetConverter
 {
     public class MasterTRA
     {
-        private Dictionary<int, string> _tlkReferences;
-        private Dictionary<int, string> _usedReferences;
+        private Dictionary<uint, string> _tlkReferences;
+        private Dictionary<uint, string> _usedReferences;
         public MasterTRA(string tlkFile) 
         { 
-            _tlkReferences = new Dictionary<int, string>();
-            _usedReferences = new Dictionary<int, string>();
+            _tlkReferences = new Dictionary<uint, string>();
+            _usedReferences = new Dictionary<uint, string>();
             string[] lines = File.ReadAllLines(tlkFile);
 
-            for(int i =0; i < lines.Length; i++)
+            for(uint i =0; i < lines.Length; i++)
             {
                 string toAdd = "";
                 string[] split = lines[i].Split("=");
@@ -32,11 +32,22 @@ namespace AssetConverter
             }
         
         }
-
-        public byte[] AddUsedReference(int reference)
+        public string GetString(uint reference)
         {
+            if (_tlkReferences.ContainsKey(reference))
+            {
+                return _tlkReferences[reference];
+            }
+            return "";
+        }
+        public byte[] AddUsedReference(uint reference)
+        {
+            if(reference == UInt32.MaxValue || !_tlkReferences.ContainsKey(reference))
+            {
+                return new byte[] { 0xff, 0xff, 0xff, 0xff };
+            }
             string referenceText = _tlkReferences[reference];
-            int newReferenceID = _usedReferences.Count;
+            uint newReferenceID = (uint)_usedReferences.Count;
             _usedReferences.Add(newReferenceID, referenceText);
             return BitConverter.GetBytes(newReferenceID);
         }

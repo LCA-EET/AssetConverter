@@ -18,6 +18,8 @@ namespace AssetConverter
             _filePrefix = filePrefix;
             _referenceTable = new Dictionary<string, string>();
             _indexTable = new Dictionary<int, int>();
+            _indexTable.Add(0, 100000);
+            _indexTable.Add(1, 1000);
             _assetTable = new IEAssetTable(postConversionDirectory);
         }
 
@@ -40,16 +42,7 @@ namespace AssetConverter
             }
             else
             {
-                int nextID = 0;
-                if (_indexTable.ContainsKey(asset.IDIndex))
-                {
-                    nextID = _indexTable[asset.IDIndex];
-                }
-                else
-                {
-                    nextID = 1000;
-                    _indexTable.Add(asset.IDIndex, nextID);
-                }
+                int nextID = _indexTable[asset.IDIndex];
                 _indexTable[asset.IDIndex] = nextID + 1;
                 asset.AssignReferenceID(_filePrefix + nextID);
                 _referenceTable.Add(asset.OldReferenceID, _filePrefix + nextID);
