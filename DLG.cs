@@ -10,7 +10,7 @@ namespace AssetConverter
 {
     public class DLG : IEAsset
     {
-        public DLG(string preConversionPath, string assetType, string weiduPath) : base(preConversionPath, assetType)
+        public DLG(string preConversionPath, string postConversionPath, IEResRef resRef, string weiduPath) : base(preConversionPath, postConversionPath, resRef)
         {
             WeiduGeneration(weiduPath);
         }
@@ -43,10 +43,6 @@ namespace AssetConverter
             }
             File.Move(d_generated, d_generated.Replace(dlgDirectory, dlgDirectory + "\\d\\"));
             File.Move(tra_generated, tra_generated.Replace(dlgDirectory, dlgDirectory + "\\tra\\"));
-        }
-        public override void SaveAsset(string assetDirectory)
-        {
-           
         }
     }
 }

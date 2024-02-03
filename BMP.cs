@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
-
+/*
 namespace AssetConverter
 {
     public class BMP : IEAsset
@@ -32,9 +32,6 @@ namespace AssetConverter
             
         }
         
-        public override void AssignReferenceID(string referenceID)
-        {
-            base.AssignReferenceID(IsAreaImage ? (referenceID + _suffix) : referenceID);
-        }
     }
 }
+*/

@@ -8,17 +8,10 @@ namespace AssetConverter
 {
     public class WAV : IEAsset
     {
-        public WAV(string preConversionPath, string assetType) : base(preConversionPath, assetType)
+        public WAV(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
 
         }
-        public bool IsAmbient
-        {
-            get
-            {
-                return _oldName.StartsWith("am");
-            }
-            
-        }
+       
     }
 }

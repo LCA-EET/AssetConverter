@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,6 @@ namespace AssetConverter
     {
         private Dictionary<string, string> _referenceTable;
         private Dictionary<int, int> _indexTable;
-        private IEAssetTable _assetTable;
         private string _filePrefix;
         public  ReferenceGenerator(string filePrefix, string postConversionDirectory)
         {
@@ -29,10 +29,51 @@ namespace AssetConverter
             //Console.ReadLine();
             return _referenceTable.ContainsKey(referenceToCheck.ToLower());
         }
-
+        public byte[] GetReferenceBytes(string oldReferenceID)
+        {
+            List<byte> toReturn = Encoding.Latin1.GetBytes(GetReference(oldReferenceID).ToUpper()).ToList();
+            while(toReturn.Count < 8)
+            {
+                toReturn.Add(0x00); //null byte
+            }
+            return toReturn.ToArray();
+        }
         public string GetReference(string oldReferenceID)
         {
             return _referenceTable[oldReferenceID.ToLower()];
+        }
+        public string DetermineReferenceFromBytes(byte[] bytes, int index)
+        {
+            //references are 8 bytes long
+            string toReturn = Encoding.Latin1.GetString(bytes, index, 8);
+            int charactersToTrim = 0;
+            for(int i = 7; i >= 0; i--)
+            {
+                if (bytes[index + i] == 0x00)
+                {
+                    charactersToTrim++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return toReturn.Substring(0, 8 - charactersToTrim);
+        }
+        public string ReplaceReference(ref byte[] contents, int offset)
+        {
+            string reference = DetermineReferenceFromBytes(contents, offset);
+            if (ReferenceExists(reference))
+            {
+                byte[] newReference = GetReferenceBytes(reference);
+                for (int j = 0; j < newReference.Length; j++)
+                {
+                    contents[offset + j] = newReference[j];
+                }
+                return DetermineReferenceFromBytes(newReference, 0);
+
+            }
+            return reference;
         }
         public void AssociateAssetToReference(IEAsset asset)
         {
@@ -55,3 +96,4 @@ namespace AssetConverter
         }
     }
 }
+*/

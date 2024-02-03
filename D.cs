@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+/*
 namespace AssetConverter
 {
     public class D : IEAsset
     {
-        public D(string preConversionPath, string assetType) : base(preConversionPath, assetType)
+        public D(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
 
         }
@@ -68,3 +68,4 @@ namespace AssetConverter
         }
     }
 }
+*/

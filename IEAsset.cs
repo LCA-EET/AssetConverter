@@ -1,70 +1,69 @@
-﻿namespace AssetConverter
+﻿using System.Text;
+
+namespace AssetConverter
 {
     public class IEAsset
     {
+        protected IEResRef _owningReference;
+        protected byte[] _contents;
         protected string _preConversionPath;
         protected string _postConversionPath;
-        protected string _assetType;
-        protected string _oldName;
-        protected string _newName;
         //protected int _idIndex;
 
-        public IEAsset(string preConversionPath, string assetType)
+        public IEAsset(string preConversionPath, string postConversionPath, IEResRef owningReference)
         {
+            _owningReference = owningReference;
             _preConversionPath = preConversionPath;
-            string[] split = _preConversionPath.Split(".");
-            string[] pathSplit = split[0].Split("\\");
-            _assetType = assetType;
-            _oldName = pathSplit[pathSplit.Length - 1].Split(".")[0].ToLower();
+            _postConversionPath = postConversionPath;
+            _contents = File.ReadAllBytes(_preConversionPath);
             //_idIndex = 0;
         }
-        public void SetNewName(string newName)
+        public virtual void SaveAsset()
         {
-            _newName = newName;
+            File.WriteAllBytes(_postConversionPath, _contents);
         }
-        public string AssetType 
+        public string ReplaceReference(int offset, string type)
         {
-            get
+            string reference = DetermineReferenceFromBytes(_contents, offset);
+            
+            byte[] newReference = null;
+            if(reference == "")
             {
-               return _assetType;
+                return reference;
             }
-        }
-        public string ReferenceID
-        {
-            get
+            if (ResourceManager.IsResourceLoaded(reference, type))
             {
-                return _newName;
+                newReference = ResourceManager.GetReplacementResource(reference, type);
             }
-        }
-        public int IDIndex
-        {
-            get
+            else
             {
-                switch (AssetType)
+                newReference = ResourceManager.AddResourceToQueue(reference, type);
+            }
+            for (int j = 0; j < newReference.Length; j++)
+            {
+                _contents[offset + j] = newReference[j];
+            }
+            string toReturn = DetermineReferenceFromBytes(newReference, 0);
+            Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
+            return toReturn;
+        }
+        public string DetermineReferenceFromBytes(byte[] bytes, int index)
+        {
+            //references are 8 bytes long
+            string toReturn = Encoding.Latin1.GetString(bytes, index, 8);
+            int charactersToTrim = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                if (bytes[index + i] == 0x00)
                 {
-                    case "are":
-                    case "bmp":
-                        return 1;
-                    default:
-                        return 0;
+                    charactersToTrim++;
+                }
+                else
+                {
+                    break;
                 }
             }
-        }
-        public string OldReferenceID
-        {
-            get
-            {
-                return _oldName;
-            }
-        }
-        public virtual void AssignReferenceID(string referenceID)
-        {
-            _newName = referenceID;
-        }
-        public virtual void SaveAsset(string assetDirectory)
-        {
-            _postConversionPath = assetDirectory + _newName + "." + _assetType;
-            File.Copy(_preConversionPath, _postConversionPath);
+            return toReturn.Substring(0, 8 - charactersToTrim);
         }
     }
 }

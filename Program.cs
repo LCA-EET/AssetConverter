@@ -7,16 +7,14 @@ namespace AssetConverter
 {
     internal class Program
     {
-
+        private static string _queuePath;
         private static string _preConversionPath;
         private static string _postConversionPath;
         private static string _weiduDirectory;
         private static string _weiduPath;
         
-        private static IEAssetTable _assetTable;
         private static string _filePrefix;
 
-        public static ReferenceGenerator ReferenceTable;
         public static MasterTRA MasterTRA;
         static void Main(string[] args)
         {
@@ -26,59 +24,34 @@ namespace AssetConverter
             string conversionPath = @"F:\AssetConverter";
             _preConversionPath = conversionPath + @"\preconvert\";
             _postConversionPath = conversionPath + @"\postconvert\";
-            _weiduDirectory = @"F:\BGModding - LCA\Game\00766\";
-            _weiduPath = _weiduDirectory + "weidu.exe";
-
-            ReferenceTable = new ReferenceGenerator(_filePrefix, _postConversionPath);
-            if (Directory.Exists(_postConversionPath))
+            if(Directory.Exists(_postConversionPath))
             {
                 Directory.Delete(_postConversionPath, true);
             }
-            if (Directory.Exists(_preConversionPath + "dlg"))
-            {
-                RemoveDLGComponents(_preConversionPath + "dlg");
-            }
+            Directory.CreateDirectory(_postConversionPath);
+            _weiduDirectory = @"F:\BGModding - LCA\Game\00766\";
+            _weiduPath = _weiduDirectory + "weidu.exe";
+            _queuePath = "queue.txt";
+
             WeiduGenerateTLK();
-            ProcessDirectory("cre");
+            ResourceManager.Initialize(_preConversionPath,
+                _postConversionPath,
+                _queuePath,
+                _weiduPath,
+                _filePrefix
+                );
             /*
             ProcessDirectory("bmp");
             ProcessDirectory("baf");
             ProcessDirectory("tis");
             ProcessDirectory("wed");
-            ProcessDirectory("dlg");
-            ProcessDirectory("dlg\\d");
-            ProcessDirectory("dlg\\tra");
+            //ProcessDirectory("dlg");
+            //ProcessDirectory("dlg\\d");
+            //ProcessDirectory("dlg\\tra");
             ProcessDirectory("itm");
             ProcessDirectory("wav");
-            */
-            ReferenceTable.SaveAssetsPostConversion();
-            /*
-            Console.WriteLine("Processing BAF");
-            RenameAndCopy(preconversionpath + "baf", "baf", 1);
-            Console.WriteLine("Processing TIS");
-            RenameAndCopy(preconversionpath + "tis", "tis", 1);
-            Console.WriteLine("Processing WED");
-            RenameAndCopy(preconversionpath + "wed", "wed", 1);
-            Console.WriteLine("Updating WED Component References");
-            UpdateComponentReferences(_postConversionPath + "wed");
-            Console.WriteLine("Processing DLG");
-            DLGtoDConversion(preconversionpath, 1);
-            Console.WriteLine("Processing BMP");
-            RenameBMPandCopy(preconversionpath, 1);
-            Console.WriteLine("Processing Area Ambient WAVs");
-            RenameAmbientsAndCopy(preconversionpath, 2);
-            Console.WriteLine("Processing ARE");
-            RenameAndCopy(preconversionpath + "are", "are", 1);
-            Console.WriteLine("Updating ARE Component References");
-            UpdateComponentReferences(_postConversionPath + "are");
-            string output = "";
-            /*
-            foreach(string oldName in _nameConversion.Keys)
-            {
-                output += oldName + "," + _nameConversion[oldName] + Environment.NewLine;
-            }
-            
-            File.WriteAllText("referenceTable.txt", output);
+            ProcessDirectory("cre");
+            ProcessDirectory("are");
             */
         }
         static void WeiduGenerateTLK()
@@ -113,49 +86,12 @@ namespace AssetConverter
                 for (int i = 0; i < files.Length; i++)
                 {
                     Log.WriteToLog((i + 1) + " of " + files.Length);
-                    BuildAsset(files[i]);
+                    //BuildAsset(files[i]);
                 }
             }
             Log.WriteLineToLog("Done.");
         }
-        static void BuildAsset(string assetPath)
-        {
-            string assetType = assetPath.Split(".")[1].ToLower();
-            IEAsset toAdd = null;
-            switch (assetType)
-            {
-                case "baf":
-                case "tis":
-                case "wed":
-                case "tra":
-                    toAdd = new IEAsset(assetPath, assetType);
-                    break;
-                case "dlg":
-                    toAdd = new DLG(assetPath, assetType, _weiduPath);
-                    break;
-                case "d":
-                    toAdd = new D(assetPath, assetType);
-                    break;
-                case "bmp":
-                    toAdd = new BMP(assetPath, assetType);
-                    break;
-                case "cre":
-                    toAdd = new CRE(assetPath, assetType);
-                    break;
-                case "wav":
-                    WAV wavAsset = new WAV(assetPath, assetType);
-                    if (wavAsset.IsAmbient)
-                    {
-                        toAdd = wavAsset;
-                    }
-                    break;
-
-            }
-            if(toAdd != null)
-            {
-                ReferenceTable.AssociateAssetToReference(toAdd);
-            }
-        }
+        
         /*
             static void RenameAmbientsAndCopy(string assetDirectory, int idIndex)
             {
