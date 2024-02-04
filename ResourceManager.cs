@@ -82,52 +82,54 @@ namespace AssetConverter
                 string assetPath = _preConversionDirectory + resRef.ResourceType + "\\" + resRef.OldReferenceID + "." + resRef.ResourceType;
                 string postConversionPath = _postConversionDirectory + resRef.ResourceType + "\\" + resRef.NewReferenceID + "." + resRef.ResourceType;
                 IEAsset loadedAsset = null;
-                switch (resRef.ResourceType)
+                if (File.Exists(assetPath))
                 {
-                    case "are":
-                        Console.WriteLine("... Resource is an area.");
-                        loadedAsset = new ARE(assetPath, postConversionPath, resRef);
-                        if(!Directory.Exists(_postConversionDirectory + "bmp"))
-                        {
-                            Directory.CreateDirectory(_postConversionDirectory + "bmp");
-                        }
-                        List<string> areaBMPs = new List<string>()
+                    switch (resRef.ResourceType)
+                    {
+                        case "are":
+                            Console.WriteLine("... Resource is an area.");
+                            loadedAsset = new ARE(assetPath, postConversionPath, resRef);
+                            if (!Directory.Exists(_postConversionDirectory + "bmp"))
+                            {
+                                Directory.CreateDirectory(_postConversionDirectory + "bmp");
+                            }
+                            List<string> areaBMPs = new List<string>()
                         {
                             _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ht.bmp",
                             _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "lm.bmp",
                             _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ln.bmp",
                             _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "sr.bmp",
                         };
-                        foreach(string bmp in areaBMPs)
-                        {
-                            if (File.Exists(bmp))
+                            foreach (string bmp in areaBMPs)
                             {
-                                File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
+                                if (File.Exists(bmp))
+                                {
+                                    File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
+                                }
                             }
-                        }
-                        break;
-                    case "baf":
-                    case "itm":
-                    case "tis":
-                    case "wed":
-                    case "tra":
-                        loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
-                        break;
-                    case "dlg":
-                        //loadedAsset = new DLG(assetPath, resRef.ResourceType, _weiduPath);
-                        break;
-                    case "d":
-                        //loadedAsset = new D(_preConversionDirectory, resRef.ResourceType);
-                        break;
-                    case "bmp":
-                        //loadedAsset = new BMP(_preConversionDirectory, resRef.ResourceType);
-                        break;
-                    case "cre":
-                        //loadedAsset = new CRE(_preConversionDirectory, resRef.ResourceType);
-                        break;
-                    case "wav":
-                        loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
-                        break;
+                            break;
+                        case "baf":
+                        case "bam":
+                        case "tis":
+                        case "wed":
+                            loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                            break;
+                        case "itm":
+                            loadedAsset = new ITM(assetPath, postConversionPath, resRef);
+                            break;
+                        case "dlg":
+                            loadedAsset = new DLG(assetPath, postConversionPath, resRef);
+                            break;
+                        case "bmp":
+                            //loadedAsset = new BMP(_preConversionDirectory, resRef.ResourceType);
+                            break;
+                        case "cre":
+                            loadedAsset = new CRE(assetPath, postConversionPath, resRef);
+                            break;
+                        case "wav":
+                            loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                            break;
+                    }
                 }
                 if(loadedAsset != null)
                 {

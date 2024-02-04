@@ -18,6 +18,27 @@ namespace AssetConverter
             _contents = File.ReadAllBytes(_preConversionPath);
             //_idIndex = 0;
         }
+        public IEResRef OwningReference
+        {
+            get
+            {
+                return _owningReference;
+            }
+        }
+        public string PreConversionPath
+        {
+            get
+            {
+                return _preConversionPath;
+            }
+        }
+        public string PostConversionPath
+        {
+            get
+            {
+                return _postConversionPath;
+            }
+        }
         public virtual void SaveAsset()
         {
             File.WriteAllBytes(_postConversionPath, _contents);
@@ -27,7 +48,7 @@ namespace AssetConverter
             string reference = DetermineReferenceFromBytes(_contents, offset);
             
             byte[] newReference = null;
-            if(reference == "")
+            if(reference == "" || reference == "None")
             {
                 return reference;
             }

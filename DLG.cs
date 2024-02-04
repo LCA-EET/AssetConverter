@@ -10,39 +10,18 @@ namespace AssetConverter
 {
     public class DLG : IEAsset
     {
-        public DLG(string preConversionPath, string postConversionPath, IEResRef resRef, string weiduPath) : base(preConversionPath, postConversionPath, resRef)
+        private string _dPath;
+        private string _traPath;
+        public DLG(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
-            WeiduGeneration(weiduPath);
+            Weidu.DecompileDialog(this);
         }
-        private void WeiduGeneration(string weiduPath)
-        {
-            string dlgDirectory = Path.GetDirectoryName(_preConversionPath);
 
-            ProcessStartInfo startInfo = new ProcessStartInfo(weiduPath);
-            startInfo.UseShellExecute = false;
-            startInfo.WorkingDirectory = dlgDirectory;
-            startInfo.ArgumentList.Add("--game");
-            startInfo.ArgumentList.Add(Path.GetDirectoryName(weiduPath));
-            startInfo.ArgumentList.Add("--trans");
-            startInfo.ArgumentList.Add(_preConversionPath);
-            Process conversion = Process.Start(startInfo);
-            conversion.WaitForExit();
-            
-            string d_generated = _preConversionPath.Replace(".DLG", ".d");
-            
-            string tra_generated = _preConversionPath.Replace(".DLG", ".tra");
-            string d_directory = Path.GetDirectoryName(_preConversionPath) + "\\d\\";
-            string tra_directory = Path.GetDirectoryName(_preConversionPath) + "\\tra\\";
-            if (!Directory.Exists(d_directory))
-            {
-                Directory.CreateDirectory(d_directory);
-            }
-            if (!Directory.Exists(tra_directory))
-            {
-                Directory.CreateDirectory(tra_directory);
-            }
-            File.Move(d_generated, d_generated.Replace(dlgDirectory, dlgDirectory + "\\d\\"));
-            File.Move(tra_generated, tra_generated.Replace(dlgDirectory, dlgDirectory + "\\tra\\"));
+        public void SetComponentPaths(string dpath, string traPath)
+        {
+            _dPath = dpath;
+            _traPath = traPath;
         }
+        
     }
 }

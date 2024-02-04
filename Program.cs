@@ -15,7 +15,6 @@ namespace AssetConverter
         
         private static string _filePrefix;
 
-        public static MasterTRA MasterTRA;
         static void Main(string[] args)
         {
             _filePrefix = "xa";
@@ -31,9 +30,11 @@ namespace AssetConverter
             Directory.CreateDirectory(_postConversionPath);
             _weiduDirectory = @"F:\BGModding - LCA\Game\00766\";
             _weiduPath = _weiduDirectory + "weidu.exe";
+            Weidu.Initialize(_weiduPath);
+            Weidu.WeiduGenerateTLK();
+            
             _queuePath = "queue.txt";
 
-            WeiduGenerateTLK();
             ResourceManager.Initialize(_preConversionPath,
                 _postConversionPath,
                 _queuePath,
@@ -54,18 +55,7 @@ namespace AssetConverter
             ProcessDirectory("are");
             */
         }
-        static void WeiduGenerateTLK()
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo(_weiduPath);
-            startInfo.UseShellExecute = false;
-            startInfo.WorkingDirectory = _weiduDirectory;
-            startInfo.ArgumentList.Add("--traify-tlk");
-            startInfo.ArgumentList.Add("--out");
-            startInfo.ArgumentList.Add("text.tra");
-            Process conversion = Process.Start(startInfo);
-            conversion.WaitForExit();
-            MasterTRA = new MasterTRA(_weiduDirectory + "text.tra");
-        }
+
         static void RemoveDLGComponents(string dlgDirectory)
         {
             if(Directory.Exists(dlgDirectory + "\\d"))

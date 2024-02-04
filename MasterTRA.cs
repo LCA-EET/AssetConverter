@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace AssetConverter
 {
-    public class MasterTRA
+    public static class MasterTRA
     {
-        private Dictionary<uint, string> _tlkReferences;
-        private Dictionary<uint, string> _usedReferences;
-        public MasterTRA(string tlkFile) 
+        private static Dictionary<uint, string> _tlkReferences;
+        private static Dictionary<uint, string> _usedReferences;
+        public static void InitializeMasterTRA(string tlkFile) 
         { 
             _tlkReferences = new Dictionary<uint, string>();
             _usedReferences = new Dictionary<uint, string>();
@@ -32,7 +32,7 @@ namespace AssetConverter
             }
         
         }
-        public string GetString(uint reference)
+        public static string GetString(uint reference)
         {
             if (_tlkReferences.ContainsKey(reference))
             {
@@ -40,7 +40,7 @@ namespace AssetConverter
             }
             return "";
         }
-        public byte[] AddUsedReference(uint reference)
+        public static byte[] AddUsedReference(uint reference)
         {
             if(reference == UInt32.MaxValue || !_tlkReferences.ContainsKey(reference))
             {
