@@ -17,13 +17,31 @@ namespace AssetConverter
             ReplaceAmbients();
             ReplaceDoorKeys();
             ReplaceTriggers();
+            ReplaceItems();
+            ReplaceContainerKeys();
             ReplaceReference(0x94, "baf"); // Area Script
             ReplaceReference(0x08, "wed");
         }
-        private void ReplaceContainerContents()
+        private void ReplaceContainerKeys()
         {
-
+            int numContainers = BitConverter.ToInt16(_contents, 0x74);
+            int offset = BitConverter.ToInt32(_contents, 0x70);
+            for(int i = 0; i < numContainers; i++)
+            {
+                ReplaceReference(offset + 120 + (i * 0xC0), "itm");
+            }
         }
+        private void ReplaceItems()
+        {
+            int numItems = BitConverter.ToInt16(_contents, 0x76);
+            int offset = BitConverter.ToInt32(_contents, 0x78);
+
+            for (int i = 0; i < numItems; i++)
+            {
+                ReplaceReference(offset + (i * 20), "itm");
+            }
+        }
+
         private void ReplaceTriggers()
         {
             int triggerOffset = BitConverter.ToInt32(_contents, 0x5C);
