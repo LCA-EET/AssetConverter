@@ -155,9 +155,21 @@ namespace AssetConverter
                 string dereferenced = DereferenceString(fileContents, offset);
                 if(dereferenced != "")
                 {
-                    _resolvedReferences.Add(identifier, dereferenced);
+                    AddResolvedReference(identifier, dereferenced);
                 }
             }
+        }
+
+        public string TP2String()
+        {
+            string toReturn = "";
+            foreach(string key in _resolvedReferences.Keys)
+            {
+                string text = _resolvedReferences[key]; 
+                uint referenceID = MasterTRA.ConvertToReference(text);
+                toReturn += "SAY " + key + " @" + referenceID + " /* " + text + " */" +  Environment.NewLine;
+            }
+            return toReturn;
         }
     }
 }

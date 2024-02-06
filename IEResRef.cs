@@ -20,7 +20,7 @@ namespace AssetConverter
             _resourceType = resourceType;
             _newReferenceBytes = resourceID;
             int charsToTrim = 0;
-            for (int j = 7; j >= 0; j--) 
+            for (int j = 7; j >= 0; j--)
             {
                 if (resourceID[j] != 0x00)
                 {
@@ -63,14 +63,21 @@ namespace AssetConverter
             }
         }
 
-        public void SetLoadedAsset(IEAsset loaded)
-        {
-            _loadedAsset = loaded;
-        }
 
         public void SaveAsset()
         {
             _loadedAsset.SaveAsset();
+        }
+
+        public IEAsset LoadedAsset{
+            get
+            {
+                return _loadedAsset;
+            }
+            set
+            {
+                _loadedAsset = value;
+            }
         }
     }
 }

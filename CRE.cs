@@ -135,5 +135,12 @@ namespace AssetConverter
         {
             ReplaceReference(0x2cc, "dlg");
         }
+
+        public override string ToTP2String()
+        {
+            string toReturn =  base.ToTP2String();
+            toReturn += _stringReferences.TP2String() + Environment.NewLine;
+            return toReturn;
+        }
     }
 }

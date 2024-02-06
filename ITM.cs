@@ -28,5 +28,12 @@ namespace AssetConverter
                 ReplaceReference(offsets[i], "bam");
             }
         }
+
+        public override string ToTP2String()
+        {
+            string toReturn = base.ToTP2String();
+            toReturn += _stringReferences.TP2String();
+            return toReturn;
+        }
     }
 }

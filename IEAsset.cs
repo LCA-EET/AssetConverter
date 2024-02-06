@@ -9,7 +9,6 @@ namespace AssetConverter
         protected string _preConversionPath;
         protected string _postConversionPath;
         //protected int _idIndex;
-
         public IEAsset(string preConversionPath, string postConversionPath, IEResRef owningReference)
         {
             _owningReference = owningReference;
@@ -52,20 +51,13 @@ namespace AssetConverter
             {
                 return reference;
             }
-            if (ResourceManager.IsResourceLoaded(reference, type))
-            {
-                newReference = ResourceManager.GetReplacementResource(reference, type);
-            }
-            else
-            {
-                newReference = ResourceManager.AddResourceToQueue(reference, type);
-            }
+            newReference = ResourceManager.AddResourceToQueue(reference, type);
             for (int j = 0; j < newReference.Length; j++)
             {
                 _contents[offset + j] = newReference[j];
             }
             string toReturn = DetermineReferenceFromBytes(newReference, 0);
-            Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
+            //Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
             return toReturn;
         }
         public string DetermineReferenceFromBytes(byte[] bytes, int index)
@@ -85,6 +77,12 @@ namespace AssetConverter
                 }
             }
             return toReturn.Substring(0, 8 - charactersToTrim);
+        }
+
+        public virtual string ToTP2String()
+        {
+            string toReturn = "COPY ~" + Program.paramFile.ModFolder + _owningReference.ResourceType + "\\" + _owningReference.NewReferenceID + "." + _owningReference.ResourceType + "~ ~override~" + Environment.NewLine ;
+            return toReturn;
         }
     }
 }

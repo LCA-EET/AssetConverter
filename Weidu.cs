@@ -45,13 +45,12 @@ namespace AssetConverter
             {
                 Directory.CreateDirectory(traDirectory);
             }
+            string postDPath = dDirectory + toDecompile.OwningReference.NewReferenceID + ".d";
+            string postTRAPath = traDirectory + toDecompile.OwningReference.NewReferenceID + ".tra";
+            File.Move(dPath, postDPath); 
+            File.Move(traPath, postTRAPath);
 
-            File.Move(dPath, dDirectory + toDecompile.OwningReference.NewReferenceID+ ".d"); 
-            File.Move(traPath, traDirectory + toDecompile.OwningReference.NewReferenceID + ".tra");
-
-
-            //ResourceManager.AddResourceToQueue(toDecompile.OwningReference.OldReferenceID, "d");
-            //ResourceManager.AddResourceToQueue(toDecompile.OwningReference.OldReferenceID, "tra");
+            toDecompile.SetComponentPaths(postDPath, postTRAPath);
         }
 
         public static void WeiduGenerateTLK()
