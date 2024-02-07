@@ -66,6 +66,17 @@ namespace AssetConverter
             }
             
         }
+        public static string ReadString_Latin1(byte[] contents, int start, int length)
+        {
+            byte[] toProcess = new byte[length];
+            int index = 0;
+            for(int i = start; i < (start + length); i++)
+            {
+                toProcess[index] = contents[i];
+                index++;
+            }
+            return Encoding.Latin1.GetString(TrimTrailingNullBytes(toProcess));
+        }
         public static byte[] TrimTrailingNullBytes(byte[] bytes)
         {
             List<byte> toReturn = new List<byte>();

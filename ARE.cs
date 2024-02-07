@@ -11,9 +11,11 @@ namespace AssetConverter
     public class ARE : IEAsset
     {
         private StringReferenceTable _stringReferences;
+        private List<Trigger> _triggers;
         public ARE(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
             _stringReferences = new StringReferenceTable();
+            _triggers = new List<Trigger>();
             ReplaceActors();
             ReplaceAREComponents();
             ReplaceAmbients();
@@ -64,11 +66,20 @@ namespace AssetConverter
             int numTriggers = BitConverter.ToInt16(_contents, 0x5A);
             for(int i = 0; i < numTriggers; i++)
             {
+
                 //_stringReferences.AddOffsetEntry()
+                uint infoTextReference = BitConverter.ToUInt32(_contents, triggerOffset + 100);
+                if (infoTextReference > 0)
+                {
+                    string triggerName = ResourceManager.ReadString_Latin1(_contents, triggerOffset, 32);
+                    string dereferenced = MasterTRA.GetString(infoTextReference);
+                    _triggers.Add(new Trigger(triggerName, dereferenced));
+                }
                 ReplaceReference(triggerOffset + 56, "are");
                 ReplaceReference(triggerOffset + 116, "itm");
                 ReplaceReference(triggerOffset + 124, "baf");
                 triggerOffset += 0xC4;
+                
             }
         }
         private void ReplaceDoorKeys()
@@ -114,6 +125,15 @@ namespace AssetConverter
                 ReplaceReference((actorOffset +128), "cre");
                 actorOffset += 0x110;
             }
+        }
+        public override string ToTP2String()
+        {
+            string toReturn = base.ToTP2String();
+            foreach(Trigger trigger in _triggers)
+            {
+                toReturn += trigger.LPF_ReplaceInfoText();
+            }
+            return toReturn;
         }
     }
 }
