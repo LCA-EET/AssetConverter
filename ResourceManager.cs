@@ -68,14 +68,22 @@ namespace AssetConverter
         }
         public static string ReadString_Latin1(byte[] contents, int start, int length)
         {
-            byte[] toProcess = new byte[length];
+            List<byte> toProcess = new List<byte>();
             int index = 0;
-            for(int i = start; i < (start + length); i++)
+            while(index < length)
             {
-                toProcess[index] = contents[i];
+                byte toCheck = contents[start + index];
+                if(toCheck == 0x00)
+                {
+                    break;
+                }
+                else
+                {
+                    toProcess.Add(toCheck);
+                }
                 index++;
             }
-            return Encoding.Latin1.GetString(TrimTrailingNullBytes(toProcess));
+            return Encoding.Latin1.GetString(toProcess.ToArray());
         }
         public static byte[] TrimTrailingNullBytes(byte[] bytes)
         {
@@ -243,6 +251,8 @@ namespace AssetConverter
                             break;
                         case "baf":
                         case "bam":
+                        case "bmp":
+                        case "eff":
                         case "tis":
                         case "wed":
                         case "wav":
@@ -253,9 +263,6 @@ namespace AssetConverter
                             break;
                         case "dlg":
                             loadedAsset = new DLG(assetPath, postConversionPath, resRef);
-                            break;
-                        case "bmp":
-                            //loadedAsset = new BMP(_preConversionDirectory, resRef.ResourceType);
                             break;
                         case "cre":
                             loadedAsset = new CRE(assetPath, postConversionPath, resRef);
