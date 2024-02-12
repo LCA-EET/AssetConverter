@@ -45,7 +45,6 @@ namespace AssetConverter
         public string ReplaceReference(int offset, string type)
         {
             string reference = DetermineReferenceFromBytes(_contents, offset);
-            
             byte[] newReference = null;
             if(reference == "" || reference == "None")
             {

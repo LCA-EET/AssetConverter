@@ -115,14 +115,7 @@ namespace AssetConverter
                 }
             }
             LoadResources();
-            if (_assetTable.ContainsKey("dlg"))
-            {
-                foreach (IEResRef dlgRef in _assetTable["dlg"].Values)
-                {
-                    DLG dlgAsset = (DLG)dlgRef.LoadedAsset;
-                    dlgAsset.ReplaceDReferences();
-                }
-            }
+            
             GenerateTP2();
             MasterTRA.WriteTRA(_postConversionDirectory);
         }
@@ -150,7 +143,7 @@ namespace AssetConverter
             {
                 DirectoryContentsToTP2(bmpDirectory, "bmp", ref output);
             }
-            File.WriteAllText(_postConversionDirectory + "generated.tp2", output);
+            File.WriteAllText(_postConversionDirectory + "generated.tph", output);
         }
         private static void DirectoryContentsToTP2(string dirPath, string fileType, ref string tp2output)
         {
@@ -163,7 +156,7 @@ namespace AssetConverter
             foreach (string file in files)
             {
                 string[] split = file.Split("\\");
-                tp2output += _modFolder + split[split.Length - 2] + "\\" + split[split.Length - 1] + Environment.NewLine;
+                tp2output += "COPY ~" + _modFolder + split[split.Length - 2] + "\\" + split[split.Length - 1] + "~ ~override~" + Environment.NewLine;
             }
         }
         public static void RegisterDialog(string oldName, string newName)
@@ -188,11 +181,7 @@ namespace AssetConverter
         {
             string toLoad;
             List<string> newlyLoaded = new List<string>();
-            List<IEResRef> toProcess = new List<IEResRef>();
-            foreach(IEResRef resRef in _resourceQueue.Values)
-            {
-                toProcess.Add(resRef);
-            }
+            List<IEResRef> toProcess = [.. _resourceQueue.Values];
             foreach (IEResRef resRef in toProcess)
             {
                 //Console.WriteLine("Loading reference " + resRef.OldReferenceID + "." + resRef.ResourceType);
@@ -200,6 +189,7 @@ namespace AssetConverter
                 string assetPath = _preConversionDirectory + resRef.ResourceType + "\\" + resRef.OldReferenceID + "." + resRef.ResourceType;
                 string postConversionPath = _postConversionDirectory + resRef.ResourceType + "\\" + resRef.NewReferenceID + "." + resRef.ResourceType;
                 IEAsset loadedAsset = null;
+                
                 if (File.Exists(assetPath))
                 {
                     switch (resRef.ResourceType)
@@ -258,6 +248,9 @@ namespace AssetConverter
                         case "wav":
                             loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
                             break;
+                        case "sto":
+                            loadedAsset = new STO(assetPath, postConversionPath, resRef);
+                            break;
                         case "itm":
                             loadedAsset = new ITM(assetPath, postConversionPath, resRef);
                             break;
@@ -285,7 +278,22 @@ namespace AssetConverter
             }
             else
             {
-                foreach(string assetType in _assetTable.Keys) 
+                if (_assetTable.ContainsKey("dlg"))
+                {
+                    foreach (IEResRef dlgRef in _assetTable["dlg"].Values)
+                    {
+                        DLG dlgAsset = (DLG)dlgRef.LoadedAsset;
+                        if (!dlgAsset.Processed)
+                        {
+                            dlgAsset.ReplaceDReferences();
+                        }
+                    }
+                }
+                if (_resourceQueue.Count > 0)
+                {
+                    LoadResources();
+                }
+                foreach (string assetType in _assetTable.Keys) 
                 {
                     if(!Directory.Exists(_postConversionDirectory + assetType))
                     {
@@ -326,10 +334,11 @@ namespace AssetConverter
         {
             return _resourceQueue.ContainsKey(resource);
         }
-
         public static byte[] AddResourceToQueue(string resourceID, string resourceType)
         {
-            if (_doNotLoad.Contains(resourceID.ToLower() + "." + resourceType.ToLower()))
+            resourceID = resourceID.ToLower();
+            resourceType= resourceType.ToLower();
+            if (_doNotLoad.Contains(resourceID + "." + resourceType))
             {
                 return new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             }

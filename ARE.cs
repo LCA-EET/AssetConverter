@@ -68,12 +68,19 @@ namespace AssetConverter
             {
 
                 //_stringReferences.AddOffsetEntry()
-                uint infoTextReference = BitConverter.ToUInt32(_contents, triggerOffset + 100);
+                int infoTextOffset = triggerOffset + 100;
+                int infoTextReference = BitConverter.ToInt32(_contents, infoTextOffset);
+                /*
                 if (infoTextReference > 0)
                 {
                     string triggerName = ResourceManager.ReadString_Latin1(_contents, triggerOffset, 32);
-                    string dereferenced = MasterTRA.GetString(infoTextReference);
+                    string dereferenced = MasterTRA.GetTLKString(infoTextReference);
                     _triggers.Add(new Trigger(triggerName, dereferenced));
+                }
+                */
+                if(infoTextReference > 0)
+                {
+                    _stringReferences.AddLong(infoTextOffset, infoTextReference);
                 }
                 ReplaceReference(triggerOffset + 56, "are");
                 ReplaceReference(triggerOffset + 116, "itm");
@@ -110,7 +117,7 @@ namespace AssetConverter
         }
         private void ReplaceAREComponents()
         {
-            int[] offsets = new int[] {0x18, 0x24, 0x30, 0x36};
+            int[] offsets = new int[] {0x18, 0x24, 0x30, 0x3C};
             for(int i = 0; i < offsets.Length; i++)
             {
                 ReplaceReference(offsets[i], "are");
@@ -129,10 +136,13 @@ namespace AssetConverter
         public override string ToTP2String()
         {
             string toReturn = base.ToTP2String();
+            toReturn += _stringReferences.TP2String();
+            /*
             foreach(Trigger trigger in _triggers)
             {
                 toReturn += trigger.LPF_ReplaceInfoText();
             }
+            */
             return toReturn;
         }
     }

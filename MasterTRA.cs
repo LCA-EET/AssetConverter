@@ -9,14 +9,12 @@ namespace AssetConverter
     public static class MasterTRA
     {
         private static Dictionary<uint, string> _tlkReferences;
-        private static Dictionary<uint, string> _usedReferences;
         private static Dictionary<uint, string> _stringList;
         private static uint _firstIndex = 10000;
         public static void InitializeMasterTRA(string tlkFile) 
         {
             _stringList = new Dictionary<uint, string>();
             _tlkReferences = new Dictionary<uint, string>();
-            _usedReferences = new Dictionary<uint, string>();
             string[] lines = File.ReadAllLines(tlkFile);
             for (int i =0; i < lines.Length; i++)
             {
@@ -81,7 +79,15 @@ namespace AssetConverter
             _stringList.Add(indexToReturn, toConvert);
             return indexToReturn;
         }
-        public static string GetString(uint reference)
+        public static string GetTRAString(uint reference)
+        {
+            if (_stringList.ContainsKey(reference))
+            {
+                return _stringList[reference];
+            }
+            return "";
+        }
+        public static string GetTLKString(uint reference)
         {
             if (_tlkReferences.ContainsKey(reference))
             {
@@ -89,23 +95,18 @@ namespace AssetConverter
             }
             return "";
         }
-        public static byte[] AddUsedReference(uint reference)
-        {
-            if(reference == UInt32.MaxValue || !_tlkReferences.ContainsKey(reference))
-            {
-                return new byte[] { 0xff, 0xff, 0xff, 0xff };
-            }
-            string referenceText = _tlkReferences[reference];
-            uint newReferenceID = (uint)_usedReferences.Count;
-            _usedReferences.Add(newReferenceID, referenceText);
-            return BitConverter.GetBytes(newReferenceID);
-        }
+        
         public static void WriteTRA(string postConversionDirectory)
         {
             string output = "";
             foreach(uint key in _stringList.Keys)
             {
-                output += "@" + key + " = " + _stringList[key] + Environment.NewLine;
+                string text = _stringList[key];
+                if (text == "")
+                {
+                    text = "~~";
+                }
+                output += "@" + key + " = " + text + Environment.NewLine;
             }
             File.WriteAllText(postConversionDirectory + "generated.tra", output);
         }

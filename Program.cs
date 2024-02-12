@@ -52,19 +52,6 @@ namespace AssetConverter
             Weidu.WeiduGenerateTLK();
 
             ResourceManager.ProcessResources();
-        }
-
-        static void RemoveDLGComponents(string dlgDirectory)
-        {
-            if(Directory.Exists(dlgDirectory + "\\d"))
-            {
-                Directory.Delete(dlgDirectory + "\\d", true);
-            }
-            if (Directory.Exists(dlgDirectory + "\\tra"))
-            {
-                Directory.Delete(dlgDirectory + "\\tra", true);
-            }
-        }
-        
+        }    
     }
 }

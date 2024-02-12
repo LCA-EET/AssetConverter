@@ -15,6 +15,7 @@ namespace AssetConverter
         public string WeiduDirectory { get; set; }
         public string WeiduPath { get; set; }
         public string ModFolder { get; set; }
+
         public ParamFile(string filePath) 
         {
             if (!File.Exists(filePath))

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace AssetConverter
     {
         private string _dPath;
         private string _traPath;
+        private bool _processed;
         public DLG(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
             Weidu.DecompileDialog(this);
@@ -23,14 +25,22 @@ namespace AssetConverter
             _dPath = dpath;
             _traPath = traPath;
         }
-
+        public bool Processed
+        {
+            get
+            {
+                return _processed;
+            }
+        }
         public void ReplaceDReferences()
         {
             string beginFlag = "BEGIN ~";
             string externFlag = "EXTERN ~";
+            string storeFlag = "StartStore(\"";
             bool changeMade = false;
             string[] lineContents = File.ReadAllLines(_dPath);
             bool beginFlagFound = false;
+            
             for (int i = 0; i < lineContents.Length; i++)
             {
                 string currentLine = lineContents[i];
@@ -54,6 +64,15 @@ namespace AssetConverter
                             reference = currentLine.Split(externFlag)[1].ToLower();
                             lineFlagFound = true;
                         }
+                        else if (currentLine.Contains(storeFlag))
+                        {
+                            reference = currentLine.Split(storeFlag)[1].ToLower();
+                            string storeName = reference.Split("\"")[0];
+                            string newResourceID = Encoding.Latin1.GetString(ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(storeName, "sto")));
+                            lineContents[i] = currentLine.Replace(storeName, newResourceID, StringComparison.OrdinalIgnoreCase);
+                            
+                            changeMade = true;
+                        }
                     }
                     if (lineFlagFound)
                     {
@@ -71,6 +90,7 @@ namespace AssetConverter
             if (changeMade)
             {
                 File.WriteAllLines(_dPath, lineContents);
+                _processed = true;
             }
         }
     }
