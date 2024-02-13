@@ -23,8 +23,8 @@ namespace AssetConverter
             ReplaceTriggers();
             ReplaceItems();
             ReplaceContainerKeys();
-            ReplaceReference(0x94, "baf"); // Area Script
-            ReplaceReference(0x08, "wed");
+            ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes); // Area Script
+            ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED
             ReplaceAnimations();
         }
         private void ReplaceAnimations()

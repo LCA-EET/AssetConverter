@@ -13,6 +13,7 @@ namespace AssetConverter
         private static uint _firstIndex = 10000;
         public static void InitializeMasterTRA(string tlkFile) 
         {
+            _firstIndex = (uint)Program.paramFile.FirstTRAIndex;
             _stringList = new Dictionary<uint, string>();
             _tlkReferences = new Dictionary<uint, string>();
             string[] lines = File.ReadAllLines(tlkFile);

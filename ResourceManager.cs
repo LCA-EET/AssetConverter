@@ -18,10 +18,14 @@ namespace AssetConverter
         private static string _filePrefix;
         private static string _modFolder;
         private static HashSet<string> _doNotLoad;
-        private static int _nextID;
+        private static Dictionary<string, int> _nextIDTable;
+        //private static int _nextID;
+        
         public static void Initialize(string preConversionDirectory, string postConversionDirectory, string queueFilePath, string weiduPath, string filePrefix, string modFolder)
         {
-            _nextID = 1000;
+
+            //_nextID = 1000;
+            _nextIDTable = new Dictionary<string, int>();
             _filePrefix = filePrefix;
             _doNotLoad  = new HashSet<string>();
             _resourceQueue = new Dictionary<string, IEResRef>();
@@ -185,7 +189,7 @@ namespace AssetConverter
             foreach (IEResRef resRef in toProcess)
             {
                 //Console.WriteLine("Loading reference " + resRef.OldReferenceID + "." + resRef.ResourceType);
-                newlyLoaded.Add(resRef.OldReferenceID);
+                newlyLoaded.Add(resRef.OldReferenceID + "." + resRef.ResourceType);
                 string assetPath = _preConversionDirectory + resRef.ResourceType + "\\" + resRef.OldReferenceID + "." + resRef.ResourceType;
                 string postConversionPath = _postConversionDirectory + resRef.ResourceType + "\\" + resRef.NewReferenceID + "." + resRef.ResourceType;
                 IEAsset loadedAsset = null;
@@ -244,9 +248,11 @@ namespace AssetConverter
                         case "bmp":
                         case "eff":
                         case "tis":
-                        case "wed":
                         case "wav":
                             loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                            break;
+                        case "wed":
+                            loadedAsset = new WED(assetPath, postConversionPath, resRef);
                             break;
                         case "sto":
                             loadedAsset = new STO(assetPath, postConversionPath, resRef);
@@ -315,10 +321,28 @@ namespace AssetConverter
             }
             return _assetTable[type].ContainsKey(resourceID);
         }
-        private static byte[] GetNextResourceID()
+        private static int GetNextID(string resourceType)
         {
-            string toReturn = _filePrefix.ToLower() + _nextID;
-            _nextID++;
+            int toReturn;
+            if (!_nextIDTable.ContainsKey(resourceType))
+            {
+                if(resourceType == "wav")
+                {
+                    _nextIDTable.Add(resourceType, Program.paramFile.FirstWAVID);
+                }
+                else
+                {
+                    _nextIDTable.Add(resourceType, Program.paramFile.FirstID);
+                }
+                
+            }
+            toReturn = _nextIDTable[resourceType];
+            _nextIDTable[(resourceType)] = toReturn + 1;
+            return toReturn;
+        }
+        private static byte[] GetNextResourceID(string resourceType)
+        {
+            string toReturn = _filePrefix.ToLower() + GetNextID(resourceType);
             List<byte> toReturnBytes = Encoding.Latin1.GetBytes(toReturn).ToList();
             while(toReturnBytes.Count < 8)
             {
@@ -330,19 +354,20 @@ namespace AssetConverter
         {
             return _assetTable[resourceType][resourceID].ReferenceBytes;
         }
-        public static bool IsInQueue(string resource)
+        public static byte[] AddResourceToQueue(string resourceID, string resourceType, byte[] nextResourceID)
         {
-            return _resourceQueue.ContainsKey(resource);
-        }
-        public static byte[] AddResourceToQueue(string resourceID, string resourceType)
-        {
+            if(nextResourceID == null)
+            {
+                nextResourceID = GetNextResourceID(resourceType);
+            }
             resourceID = resourceID.ToLower();
-            resourceType= resourceType.ToLower();
-            if (_doNotLoad.Contains(resourceID + "." + resourceType))
+            resourceType = resourceType.ToLower();
+            string resourceIDandType = resourceID + "." + resourceType;
+            if (_doNotLoad.Contains(resourceIDandType))
             {
                 return new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             }
-            if (!_resourceQueue.ContainsKey(resourceID))
+            if (!_resourceQueue.ContainsKey(resourceIDandType))
             {
                 if (!_assetTable.ContainsKey(resourceType))
                 {
@@ -350,8 +375,8 @@ namespace AssetConverter
                 }
                 if (!_assetTable[resourceType].ContainsKey(resourceID))
                 {
-                    IEResRef toAdd = new IEResRef(resourceID, resourceType, GetNextResourceID());
-                    _resourceQueue.Add(resourceID, toAdd);
+                    IEResRef toAdd = new IEResRef(resourceID, resourceType, nextResourceID);
+                    _resourceQueue.Add(resourceIDandType, toAdd);
                     return toAdd.ReferenceBytes;
                 }
                 else
@@ -361,8 +386,12 @@ namespace AssetConverter
             }
             else
             {
-                return _resourceQueue[resourceID].ReferenceBytes;
+                return _resourceQueue[resourceIDandType].ReferenceBytes;
             }
+        }
+        public static byte[] AddResourceToQueue(string resourceID, string resourceType)
+        {
+            return AddResourceToQueue(resourceID, resourceType, GetNextResourceID(resourceType));
         }
 
     }

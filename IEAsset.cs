@@ -42,15 +42,15 @@ namespace AssetConverter
         {
             File.WriteAllBytes(_postConversionPath, _contents);
         }
-        public string ReplaceReference(int offset, string type)
+        public string ReplaceReference(int offset, string type, byte[] newResourceID)
         {
             string reference = DetermineReferenceFromBytes(_contents, offset);
             byte[] newReference = null;
-            if(reference == "" || reference == "None")
+            if (reference == "" || reference == "None")
             {
                 return reference;
             }
-            newReference = ResourceManager.AddResourceToQueue(reference, type);
+            newReference = ResourceManager.AddResourceToQueue(reference, type, newResourceID);
             for (int j = 0; j < newReference.Length; j++)
             {
                 _contents[offset + j] = newReference[j];
@@ -58,6 +58,10 @@ namespace AssetConverter
             string toReturn = DetermineReferenceFromBytes(newReference, 0);
             //Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
             return toReturn;
+        }
+        public string ReplaceReference(int offset, string type)
+        {
+            return ReplaceReference(offset, type, null);
         }
         public string DetermineReferenceFromBytes(byte[] bytes, int index)
         {

@@ -16,6 +16,10 @@ namespace AssetConverter
         public string WeiduPath { get; set; }
         public string ModFolder { get; set; }
 
+        public int FirstTRAIndex { get; set; }
+
+        public int FirstID { get; set; }
+        public int FirstWAVID { get; set; }
         public ParamFile(string filePath) 
         {
             if (!File.Exists(filePath))
@@ -51,6 +55,9 @@ namespace AssetConverter
                 QueuePath = lines[3];
                 Prefix = lines[4];
                 ModFolder = lines[5];
+                FirstTRAIndex = int.Parse(lines[6]);
+                FirstID = int.Parse(lines[7]);
+                FirstWAVID = int.Parse(lines[8]);
             }
             catch(Exception ex)
             {
