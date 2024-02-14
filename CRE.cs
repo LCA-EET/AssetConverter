@@ -111,7 +111,19 @@ namespace AssetConverter
             _stringReferences.ResolveReferences(_contents);
             ReplaceScriptReferences();
             ReplaceItemReferences();
+            ReplaceScriptName();
             ReplaceDLG();
+        }
+        private void ReplaceScriptName()
+        {
+            int scriptNameOffset = 0x280;
+            byte[] newReferenceID = _owningReference.ReferenceBytes;
+            int refIdx = 0;
+            for(int i = scriptNameOffset; i < scriptNameOffset + newReferenceID.Length; i++)
+            {
+                _contents[i] = newReferenceID[refIdx];
+                refIdx++;
+            }
         }
         private void ReplaceItemReferences()
         {
@@ -120,7 +132,7 @@ namespace AssetConverter
             for(int i = 0; i < numItems; i++)
             {
                 ReplaceReference(itemOffset, "itm");
-                itemOffset += 0x0C;
+                itemOffset += 0x14;
             }
         }
         private void ReplaceScriptReferences()

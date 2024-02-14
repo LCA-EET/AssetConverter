@@ -20,6 +20,7 @@ namespace AssetConverter
 
         public int FirstID { get; set; }
         public int FirstWAVID { get; set; }
+        public bool IncludeWAVs { get; set; }
         public ParamFile(string filePath) 
         {
             if (!File.Exists(filePath))
@@ -58,6 +59,15 @@ namespace AssetConverter
                 FirstTRAIndex = int.Parse(lines[6]);
                 FirstID = int.Parse(lines[7]);
                 FirstWAVID = int.Parse(lines[8]);
+                string includeWAVs = lines[9];
+                if(int.Parse(includeWAVs) == 1)
+                {
+                    IncludeWAVs = true;
+                }
+                else
+                {
+                    IncludeWAVs = false;
+                }
             }
             catch(Exception ex)
             {

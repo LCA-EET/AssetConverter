@@ -108,13 +108,16 @@ namespace AssetConverter
             string[] resourcesToLoad = File.ReadAllLines(_queueFilePath);
             foreach (string resource in resourcesToLoad)
             {
-                if (resource.StartsWith("!"))
+                string resourceLower = resource.ToLower();
+                if (resourceLower.StartsWith("!"))
                 {
-                    _doNotLoad.Add(resource.Substring(1).ToLower());
+                    _doNotLoad.Add(resourceLower.Substring(1));
+                    //Console.WriteLine(resourceLower);
+                    //Console.ReadLine();
                 }
                 else
                 {
-                    string[] splitResource = resource.ToLower().Split('.');
+                    string[] splitResource = resourceLower.Split('.');
                     AddResourceToQueue(splitResource[0], splitResource[1]);
                 }
             }
@@ -125,29 +128,50 @@ namespace AssetConverter
         }
         private static void GenerateTP2()
         {
-            string output = "";
+            string refoutput = "";
+            string output = "PRINT ~Processing AssetConverter generated elements...~" + Environment.NewLine;
             foreach(string key in _assetTable.Keys)
             {
+                if(key == "dlg")
+                {
+                    output += "PRINT ~Compiling dialogs...~" + Environment.NewLine;
+                    output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "d~" + Environment.NewLine;
+                }
                 output += "//" + key + " files" + Environment.NewLine;
                 output += "//===================" + Environment.NewLine;
                 Dictionary<string, IEResRef> innerTable = _assetTable[key];
-                foreach(IEResRef resRef in innerTable.Values)
+                if(key == "baf" && _assetTable[key].Count > 0)
                 {
-                    output += resRef.LoadedAsset.ToTP2String();
+                    output += "PRINT ~Compiling scripts...~" + Environment.NewLine;
+                    output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "baf~" + Environment.NewLine;
+                }
+                output += "PRINT ~Processing " + key + " files...~" + Environment.NewLine;
+                foreach (IEResRef resRef in innerTable.Values)
+                {
+                    output += "PRINT ~Processing " + resRef.NewReferenceID +"." + resRef.ResourceType +"~" + Environment.NewLine;
+                    refoutput += resRef.OldReferenceID + "." + resRef.ResourceType + "::" + resRef.NewReferenceID + "." + resRef.ResourceType +  Environment.NewLine;
+                    if(resRef.ResourceType != "dlg")
+                    {
+                        output += resRef.LoadedAsset.ToTP2String();
+                    }
                 }
                 output += Environment.NewLine;
+                
             }
             string mosDirectory = _postConversionDirectory + "mos\\";
             string bmpDirectory = _postConversionDirectory + "bmp\\";
             if (Directory.Exists(mosDirectory))
             {
+                output += "PRINT ~Copying MOS...~" + Environment.NewLine;
                 DirectoryContentsToTP2(mosDirectory, "mos", ref output);
             }
             if(Directory.Exists(bmpDirectory))
             {
+                output += "PRINT ~Copying BMP...~" + Environment.NewLine;
                 DirectoryContentsToTP2(bmpDirectory, "bmp", ref output);
             }
             File.WriteAllText(_postConversionDirectory + "generated.tph", output);
+            File.WriteAllText(_postConversionDirectory + "referenceTable.txt", refoutput);
         }
         private static void DirectoryContentsToTP2(string dirPath, string fileType, ref string tp2output)
         {
@@ -160,7 +184,9 @@ namespace AssetConverter
             foreach (string file in files)
             {
                 string[] split = file.Split("\\");
+                //tp2output += "ACTION_IF (!FILE_EXISTS_IN_GAME " + filename + ") BEGIN" + Environment.NewLine; 
                 tp2output += "COPY ~" + _modFolder + split[split.Length - 2] + "\\" + split[split.Length - 1] + "~ ~override~" + Environment.NewLine;
+                //tp2output += "END";
             }
         }
         public static void RegisterDialog(string oldName, string newName)
@@ -248,8 +274,13 @@ namespace AssetConverter
                         case "bmp":
                         case "eff":
                         case "tis":
-                        case "wav":
                             loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                            break;
+                        case "wav":
+                            if (Program.paramFile.IncludeWAVs)
+                            {
+                                loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                            }
                             break;
                         case "wed":
                             loadedAsset = new WED(assetPath, postConversionPath, resRef);
@@ -301,12 +332,12 @@ namespace AssetConverter
                 }
                 foreach (string assetType in _assetTable.Keys) 
                 {
-                    if(!Directory.Exists(_postConversionDirectory + assetType))
+                    if (!Directory.Exists(_postConversionDirectory + assetType))
                     {
                         Directory.CreateDirectory(_postConversionDirectory + assetType);
                     }
                     Dictionary<string, IEResRef> loaded = _assetTable[assetType];
-                    foreach(IEResRef res in loaded.Values)
+                    foreach (IEResRef res in loaded.Values)
                     {
                         res.SaveAsset();
                     }
@@ -365,6 +396,8 @@ namespace AssetConverter
             string resourceIDandType = resourceID + "." + resourceType;
             if (_doNotLoad.Contains(resourceIDandType))
             {
+                //Console.WriteLine("Skipped loading: " + resourceIDandType);
+                //Console.Read();
                 return new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             }
             if (!_resourceQueue.ContainsKey(resourceIDandType))
