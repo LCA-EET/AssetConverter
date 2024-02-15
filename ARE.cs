@@ -107,15 +107,19 @@ namespace AssetConverter
             int numAmbients = BitConverter.ToInt16(_contents, 0x82);
             for (int i = 0; i < numAmbients; i++)
             {
-                for(int j = 0; j < 10; j++) // replace sounds 1 thru 10
+                int numSounds = BitConverter.ToInt16(_contents, ambientOffset + 0x80);
+                int soundIndex = 0;
+                int soundOffset = ambientOffset + 0x30;
+                while(soundIndex < numSounds)
                 {
-                    ReplaceReference((ambientOffset + 48), "wav");
-                    ambientOffset += 0x08;
+                    ReplaceReference(soundOffset, "wav");
+                    soundIndex++;
+                    soundOffset += 0x08;
                 }
                 ambientOffset += 0xD4;
             }
         }
-        private void ReplaceAREComponents()
+        private void ReplaceAREComponents() // Checked OK
         {
             int[] offsets = new int[] {0x18, 0x24, 0x30, 0x3C};
             for(int i = 0; i < offsets.Length; i++)
@@ -123,7 +127,7 @@ namespace AssetConverter
                 ReplaceReference(offsets[i], "are");
             }
         }
-        private void ReplaceActors()
+        private void ReplaceActors() // Checked OK
         {
             int numActors = BitConverter.ToInt16(_contents, 0x58);
             int actorOffset = BitConverter.ToInt32(_contents, 0x54);
