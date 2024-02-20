@@ -12,10 +12,12 @@ namespace AssetConverter
     {
         private StringReferenceTable _stringReferences;
         private List<Trigger> _triggers;
+        private Dictionary<int, int> _songTable;
         public ARE(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
             _stringReferences = new StringReferenceTable();
             _triggers = new List<Trigger>();
+            _songTable = new Dictionary<int, int>();
             ReplaceActors();
             ReplaceAREComponents();
             ReplaceAmbients();
@@ -26,6 +28,20 @@ namespace AssetConverter
             ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes); // Area Script
             ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED
             ReplaceAnimations();
+            GenerateSongList();
+        }
+
+        private void GenerateSongList()
+        {
+            int songsOffset = BitConverter.ToInt32(_contents, 0xbc);
+            int numSongs = 10;
+            for(int i = 0; i < numSongs; i++)
+            {
+                int songID = BitConverter.ToInt32(_contents, songsOffset);
+                _songTable.Add(songsOffset, songID);
+                MusicTable.AddSong(songID);
+                songsOffset += 4;
+            }
         }
         private void ReplaceAnimations()
         {
@@ -137,6 +153,22 @@ namespace AssetConverter
                 actorOffset += 0x110;
             }
         }
+        private string SongList
+        {
+            get
+            {
+                string toReturn = "";
+                foreach(int songOffset in _songTable.Keys)
+                {
+                    int songID = _songTable[songOffset];
+                    if (MusicTable.SongExists(songID))
+                    {
+                        toReturn += "\tWRITE_LONG " + songOffset + " %xamu" + MusicTable.GetUpdatedReference(songID) + "%" + Environment.NewLine; 
+                    }
+                }
+                return toReturn;
+            }
+        }
         public override string ToTP2String()
         {
             string toReturn = "ACTION_IF (FILE_EXISTS_IN_GAME ~" + _owningReference.NewReferenceID + "." + _owningReference.ResourceType + "~) BEGIN" + Environment.NewLine;
@@ -144,6 +176,7 @@ namespace AssetConverter
             toReturn += "END ELSE BEGIN" + Environment.NewLine;
             toReturn += "\t" + base.ToTP2String();
             toReturn += _stringReferences.TP2String();
+            toReturn += SongList;
             toReturn += "END" + Environment.NewLine;
             return toReturn;
         }

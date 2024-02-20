@@ -130,7 +130,11 @@ namespace AssetConverter
         {
             string refoutput = "";
             string output = "PRINT ~Processing AssetConverter generated elements...~" + Environment.NewLine;
-            foreach(string key in _assetTable.Keys)
+            if(File.Exists(_postConversionDirectory + "songsList.txt"))
+            {
+                File.Delete(_postConversionDirectory + "songsList.txt");
+            }
+            foreach (string key in _assetTable.Keys)
             {
                 if(key == "dlg")
                 {
@@ -154,6 +158,7 @@ namespace AssetConverter
                     {
                         output += resRef.LoadedAsset.ToTP2String();
                     }
+                    File.WriteAllText(_postConversionDirectory + "songsList.txt", MusicTable.TableToString());
                 }
                 output += Environment.NewLine;
                 

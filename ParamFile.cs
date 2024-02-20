@@ -21,6 +21,7 @@ namespace AssetConverter
         public int FirstID { get; set; }
         public int FirstWAVID { get; set; }
         public bool IncludeWAVs { get; set; }
+        public int MusicIndex { get; set; }
         public ParamFile(string filePath) 
         {
             if (!File.Exists(filePath))
@@ -68,6 +69,7 @@ namespace AssetConverter
                 {
                     IncludeWAVs = false;
                 }
+                MusicIndex = int.Parse(lines[10]);
             }
             catch(Exception ex)
             {

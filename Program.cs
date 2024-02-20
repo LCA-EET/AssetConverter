@@ -11,6 +11,7 @@ namespace AssetConverter
         public static ParamFile paramFile;
         static void Main(string[] args)
         {
+            
             string paramsFile = "params.in";
             if(args.Length > 0 )
             {
@@ -48,7 +49,7 @@ namespace AssetConverter
                 paramFile.Prefix,
                 paramFile.ModFolder
                 );
-
+            MusicTable.Initialize(paramFile.MusicIndex);
             Weidu.WeiduGenerateTLK();
 
             ResourceManager.ProcessResources();
