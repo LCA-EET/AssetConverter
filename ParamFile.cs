@@ -25,6 +25,8 @@ namespace AssetConverter
 
         public string SongListPath { get; set; }
         public string MusicDirectory { get; set; }
+
+        public bool IncludeAreaScripts { get; set; }
         public ParamFile(string filePath) 
         {
             if (!File.Exists(filePath))
@@ -75,6 +77,7 @@ namespace AssetConverter
                 MusicIndex = int.Parse(lines[10]);
                 SongListPath = lines[11];
                 MusicDirectory = lines[12];
+                IncludeAreaScripts = int.Parse(lines[13]) == 1 ? true : false;
             }
             catch(Exception ex)
             {

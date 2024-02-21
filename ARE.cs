@@ -25,7 +25,18 @@ namespace AssetConverter
             ReplaceTriggers();
             ReplaceItems();
             ReplaceContainerKeys();
-            ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes); // Area Script
+            if (Program.paramFile.IncludeAreaScripts)
+            {
+                ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes); // Area Script
+            }
+            else
+            {
+                for(int b = 0; b < 8; b++)
+                {
+                    _contents[0x94 + b] = 0x00;
+                }
+            }
+            
             ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED
             ReplaceAnimations();
             GenerateSongList();
