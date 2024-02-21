@@ -149,7 +149,22 @@ namespace AssetConverter
             int actorOffset = BitConverter.ToInt32(_contents, 0x54);
             for (int i = 0; i < numActors; i++)
             {
-                ReplaceReference((actorOffset +128), "cre");
+                int intermediateOffset = actorOffset + 0x48;
+                ReplaceReference((intermediateOffset), "dlg");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "baf");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "baf");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "baf");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "baf");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "baf");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "baf");
+                intermediateOffset += 0x08;
+                ReplaceReference((intermediateOffset), "cre");
                 actorOffset += 0x110;
             }
         }
@@ -163,7 +178,7 @@ namespace AssetConverter
                     int songID = _songTable[songOffset];
                     if (MusicTable.SongExists(songID))
                     {
-                        toReturn += "\tWRITE_LONG " + songOffset + " %xamu" + MusicTable.GetUpdatedReference(songID) + "%" + Environment.NewLine; 
+                        toReturn += "\tWRITE_LONG " + songOffset + " %xa" + MusicTable.GetUpdatedReference(songID) + "%" + Environment.NewLine; 
                     }
                 }
                 return toReturn;

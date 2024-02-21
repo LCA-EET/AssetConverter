@@ -49,7 +49,7 @@ namespace AssetConverter
                 paramFile.Prefix,
                 paramFile.ModFolder
                 );
-            MusicTable.Initialize(paramFile.MusicIndex);
+            MusicTable.Initialize(paramFile.MusicIndex, paramFile.SongListPath, paramFile.MusicDirectory);
             Weidu.WeiduGenerateTLK();
 
             ResourceManager.ProcessResources();

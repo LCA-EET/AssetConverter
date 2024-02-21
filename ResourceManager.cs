@@ -130,9 +130,10 @@ namespace AssetConverter
         {
             string refoutput = "";
             string output = "PRINT ~Processing AssetConverter generated elements...~" + Environment.NewLine;
-            if(File.Exists(_postConversionDirectory + "songsList.txt"))
+            if (MusicTable.SongCount > 0)
             {
-                File.Delete(_postConversionDirectory + "songsList.txt");
+                File.WriteAllText(_postConversionDirectory + "songsList.txt", MusicTable.TableToString());
+                output += MusicTable.ToTP2String();
             }
             foreach (string key in _assetTable.Keys)
             {
@@ -158,11 +159,13 @@ namespace AssetConverter
                     {
                         output += resRef.LoadedAsset.ToTP2String();
                     }
-                    File.WriteAllText(_postConversionDirectory + "songsList.txt", MusicTable.TableToString());
+                    
                 }
                 output += Environment.NewLine;
                 
             }
+            
+            
             string mosDirectory = _postConversionDirectory + "mos\\";
             string bmpDirectory = _postConversionDirectory + "bmp\\";
             if (Directory.Exists(mosDirectory))
