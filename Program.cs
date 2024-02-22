@@ -41,7 +41,7 @@ namespace AssetConverter
             }
             Directory.CreateDirectory(paramFile.PostconversionDirectory);
             Weidu.Initialize(paramFile.WeiduPath);
-
+            DAL.Initialize();
             ResourceManager.Initialize(paramFile.PreconversionDirectory,
                 paramFile.PostconversionDirectory,
                 paramFile.QueuePath,

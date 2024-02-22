@@ -11,12 +11,12 @@ namespace AssetConverter
     public class ARE : IEAsset
     {
         private StringReferenceTable _stringReferences;
-        private List<Trigger> _triggers;
+        //private List<Trigger> _triggers;
         private Dictionary<int, int> _songTable;
         public ARE(string preConversionPath, string postConversionPath, IEResRef resRef) : base(preConversionPath, postConversionPath, resRef)
         {
             _stringReferences = new StringReferenceTable();
-            _triggers = new List<Trigger>();
+            //_triggers = new List<Trigger>();
             _songTable = new Dictionary<int, int>();
             ReplaceActors();
             ReplaceAREComponents();

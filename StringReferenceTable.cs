@@ -115,32 +115,32 @@ namespace AssetConverter
     {
         private Dictionary<int, int> _longs;
         private Dictionary<string, int> _offsetTable;
-        private Dictionary<int, string> _resolvedReferences;    
+        private Dictionary<int, TRARef> _resolvedReferences;    
         public StringReferenceTable() 
         { 
             _longs = new Dictionary<int, int>();
             _offsetTable = new Dictionary<string, int>();
-            _resolvedReferences = new Dictionary<int, string>();
+            _resolvedReferences = new Dictionary<int, TRARef>();
 
         }
         public void AddLong(int offset, int tlkReference)
         {
             _longs.Add(offset, tlkReference);
         }
-        private string DereferenceString(byte[] contents, int offset)
+        private TRARef Dereference(byte[] contents, int offset)
         {
-            uint referenceID = BitConverter.ToUInt32(contents, offset);
-            return MasterTRA.GetTLKString(referenceID);
+            int referenceID = BitConverter.ToInt32(contents, offset);
+            return MasterTRA.GetTRAReference_TLK(referenceID);
         }
-        private void AddResolvedReference(int offset, string text)
+        private void AddResolvedReference(int offset, TRARef traref)
         {
             if (!_resolvedReferences.ContainsKey(offset))
             {
-                _resolvedReferences.Add(offset, text);
+                _resolvedReferences.Add(offset, traref);
             }
             else
             {
-                _resolvedReferences[offset] = text;
+                _resolvedReferences[offset] = traref;
             }
         }
         public void AddOffsetEntry(string identifier, int offset)
@@ -159,9 +159,10 @@ namespace AssetConverter
             foreach(string identifier in _offsetTable.Keys)
             {
                 int offset = _offsetTable[identifier];
-                string dereferenced = DereferenceString(fileContents, offset);
-                if(dereferenced != "")
+                TRARef dereferenced = Dereference(fileContents, offset);
+                if(dereferenced != null)
                 {
+                    dereferenced.CopyWAV();
                     AddResolvedReference(offset, dereferenced);
                 }
             }
@@ -172,15 +173,15 @@ namespace AssetConverter
             string toReturn = "";
             foreach (int offset in _resolvedReferences.Keys)
             {
-                string text = _resolvedReferences[offset];
-                uint referenceID = MasterTRA.ConvertToReference(text);
+                TRARef text = _resolvedReferences[offset];
+                int referenceID = MasterTRA.ConvertToReference(text);
                 //toReturn += "SAY " + key + " @" + referenceID + " /* " + text + " */" + Environment.NewLine;
-                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + referenceID + ") /*" + MasterTRA.GetTRAString(referenceID) + "*/" + Environment.NewLine;
+                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + referenceID + ") /*" + MasterTRA.GetTRAReferenced_Used(referenceID) + "*/" + Environment.NewLine;
             }
             foreach (int offset in _longs.Keys) {
-                uint newReferenceID = MasterTRA.ConvertToReference(MasterTRA.GetTLKString((uint)_longs[offset]));
+                int newReferenceID = MasterTRA.ConvertToReference(MasterTRA.GetTRAReference_TLK((int)_longs[offset]));
 
-                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + newReferenceID + ") /*" + MasterTRA.GetTRAString(newReferenceID) + "*/" + Environment.NewLine; ;
+                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + newReferenceID + ") /*" + MasterTRA.GetTRAReferenced_Used(newReferenceID) + "*/" + Environment.NewLine; ;
             }
             return toReturn;
         }

@@ -8,14 +8,14 @@ namespace AssetConverter
 {
     public static class MasterTRA
     {
-        private static Dictionary<uint, string> _tlkReferences;
-        private static Dictionary<uint, string> _stringList;
-        private static uint _firstIndex = 10000;
+        private static Dictionary<int, TRARef> _tlkReferences;
+        private static Dictionary<int, TRARef> _stringList;
+        private static int _firstIndex = 10000;
         public static void InitializeMasterTRA(string tlkFile) 
         {
-            _firstIndex = (uint)Program.paramFile.FirstTRAIndex;
-            _stringList = new Dictionary<uint, string>();
-            _tlkReferences = new Dictionary<uint, string>();
+            _firstIndex = (int)Program.paramFile.FirstTRAIndex;
+            _stringList = new Dictionary<int, TRARef>();
+            _tlkReferences = new Dictionary<int, TRARef>();
             string[] lines = File.ReadAllLines(tlkFile);
             for (int i =0; i < lines.Length; i++)
             {
@@ -23,9 +23,12 @@ namespace AssetConverter
                 if (lines[i].Contains("@") && lines[i].Contains("="))
                 {
 
-                    string[] eqSplit = lines[i].Split("=");
-                    uint referenceID = uint.Parse(eqSplit[0].Replace("@", "").Trim());
-                    string toAdd = eqSplit[1];
+                    //string[] eqSplit = lines[i].Split("=");
+                    int eqIdx = lines[i].IndexOf("=");
+
+                    int referenceID = int.Parse(lines[i].Substring(0, eqIdx).Trim().Replace("@",""));
+                        //eqSplit[0].Replace("@", "").Trim());
+                    string toAdd = lines[i].Substring(eqIdx + 1);
                     if(i + 1 < lines.Length)
                     {
                         for (int j = i + 1; j < lines.Length; j++)
@@ -50,59 +53,67 @@ namespace AssetConverter
                 }
             }
         }
-        private static void AddStringReference(uint referenceID, string toAdd)
+        private static void AddStringReference(int referenceID, string toAdd)
         {
+            _tlkReferences.Add(referenceID, new TRARef(referenceID, toAdd));
+            /*
             int startIndex = toAdd.IndexOf('~');
             int lastIndex = toAdd.LastIndexOf('~');
             string substring = toAdd.Substring(startIndex, lastIndex - startIndex);
-            if(substring.Contains('[') && substring.Contains(']'))
+            int startBracket = 0;
+            int endBracket = 0;
+            if (substring.Contains('[') && substring.Contains(']'))
             {
-                int startBracket = substring.IndexOf('[');
-                int endBracket = substring.LastIndexOf(']');
+                startBracket = substring.IndexOf('[');
+                endBracket = substring.LastIndexOf(']');
                 toAdd = toAdd.Replace(substring.Substring(startBracket, (endBracket - startBracket) + 1), "").Trim();
-                string[] split = toAdd.Split("~");
-                split[1] = split[1].Trim();
-                if (split[2].Contains("["))
-                {
-                    startBracket = split[2].IndexOf('[');
-                    endBracket = split[2].LastIndexOf(']');
-                    string wavToReplace = split[2].Substring(startBracket + 1, (endBracket - startBracket) -1);
-                    byte[] replacementReference = ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(wavToReplace.ToLower(), "wav"));
-                    split[2] = "[" + Encoding.Latin1.GetString(replacementReference) + "]";
-                }
-                toAdd = "~" + split[1] + "~ " + split[2];
             }
+            string[] split = toAdd.Split("~");
+            split[1] = split[1].Trim();
+            if (split[2].Contains("["))
+            {
+                startBracket = split[2].IndexOf('[');
+                endBracket = split[2].LastIndexOf(']');
+                string wavToReplace = split[2].Substring(startBracket + 1, (endBracket - startBracket) -1);
+                byte[] replacementReference = ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(wavToReplace.ToLower(), "wav"));
+                split[2] = "[" + Encoding.Latin1.GetString(replacementReference) + "]";
+            }
+            toAdd = "~" + split[1] + "~ " + split[2];
+            
             _tlkReferences.Add(referenceID, toAdd);
+            */
         }
-        public static uint ConvertToReference(string toConvert)
+        public static int ConvertToReference(TRARef reference)
         {
-            uint indexToReturn = _firstIndex + (uint)_stringList.Count;
-            _stringList.Add(indexToReturn, toConvert);
+            int indexToReturn = _firstIndex + (int)_stringList.Count;
+            reference.ReReference(indexToReturn);
+            _stringList.Add(indexToReturn, reference);
+            
             return indexToReturn;
         }
-        public static string GetTRAString(uint reference)
+        public static TRARef GetTRAReferenced_Used(int reference)
         {
             if (_stringList.ContainsKey(reference))
             {
                 return _stringList[reference];
             }
-            return "";
+            return null;
         }
-        public static string GetTLKString(uint reference)
+        public static TRARef GetTRAReference_TLK(int reference)
         {
             if (_tlkReferences.ContainsKey(reference))
             {
                 return _tlkReferences[reference];
             }
-            return "";
+            return null;
         }
         
         public static void WriteTRA(string postConversionDirectory)
         {
             string output = "";
-            foreach(uint key in _stringList.Keys)
+            foreach(int key in _stringList.Keys)
             {
-                string text = _stringList[key];
+                string text = _stringList[key].TLKString;
                 if (text == "")
                 {
                     text = "~~";

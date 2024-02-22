@@ -90,8 +90,9 @@ namespace AssetConverter
                         {
                             string[] split = acmFile.Split("\\");
                             string musicName = split[split.Length - 1];
-                            musicName = musicName.Replace(oldMusicName, newMusicID);
+                            musicName = musicName.ToLower().Replace(oldMusicName, newMusicID);
                             string newACMPath = _postConversionMusicDirectory + newMusicID + @"\" + musicName;
+                            Console.WriteLine(newACMPath);
                             File.Copy(acmFile, newACMPath);
                             if (!_acmFiles.ContainsKey(newMusicID))
                             {
@@ -155,7 +156,7 @@ namespace AssetConverter
                 List<string> acms = _acmFiles[newMusicID];
                 foreach(string acm in acms) 
                 {
-                    toReturn += @"COPY ~%MOD_FOLDER%\rbg\generated\mus\" + newMusicID + @"\" + acm + @"~ ~MUSIC\" + newMusicID + @"\" + acm + "~" + Environment.NewLine; 
+                    toReturn += "COPY ~" + Program.paramFile.ModFolder + @"mus\" + newMusicID + @"\" + acm + @"~ ~MUSIC\" + newMusicID + @"\" + acm + "~" + Environment.NewLine; 
                 }
             }
             toReturn += "//}" + Environment.NewLine;

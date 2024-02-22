@@ -45,6 +45,10 @@ namespace AssetConverter
         public string ReplaceReference(int offset, string type, byte[] newResourceID)
         {
             string reference = DetermineReferenceFromBytes(_contents, offset);
+            if(DAL.AssetExistsInDestination(reference, type))
+            {
+                return reference;
+            }
             byte[] newReference = null;
             if (reference == "" || reference == "None")
             {
