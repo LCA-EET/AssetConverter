@@ -182,7 +182,7 @@ namespace AssetConverter
             File.WriteAllText(_postConversionDirectory + "generated.tph", output);
             File.WriteAllText(_postConversionDirectory + "referenceTable.txt", refoutput);
             File.Copy(Program.paramFile.QueuePath, _postConversionDirectory + "queue.txt");
-            File.Copy("params.in", _postConversionDirectory + "params.in");
+            File.Copy(Program.ParamPath, _postConversionDirectory + "params.in");
 
         }
         private static void DirectoryContentsToTP2(string dirPath, string fileType, ref string tp2output)

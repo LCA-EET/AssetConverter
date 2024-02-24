@@ -6,8 +6,8 @@ namespace AssetConverter
 {
     internal class Program
     {
-     
-        
+
+        public static string ParamPath;
         public static ParamFile paramFile;
         static void Main(string[] args)
         {
@@ -15,9 +15,9 @@ namespace AssetConverter
             string paramsFile = "params.in";
             if(args.Length > 0 )
             {
-                if (File.Exists(args[1]))
+                if (File.Exists(args[0]))
                 {
-                    paramsFile = args[1];
+                    paramsFile = args[0];
                 }
                 else
                 {
@@ -34,7 +34,7 @@ namespace AssetConverter
                 Environment.Exit(0);
             }
             paramFile = new ParamFile(paramsFile);
-
+            ParamPath = paramsFile;            
             if(Directory.Exists(paramFile.PostconversionDirectory))
             {
                 Directory.Delete(paramFile.PostconversionDirectory, true);

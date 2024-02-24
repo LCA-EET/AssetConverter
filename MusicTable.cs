@@ -57,28 +57,27 @@ namespace AssetConverter
             }
         }
 
-        public static void AddSong(int id)
+        public static bool AddSong(int id)
         {
-            if(id > 0)
+            if (!_preMusicTable.ContainsKey(id) || id <= 0)
             {
-                
-                if(!_musicTable.ContainsKey(id) && _preMusicTable.ContainsKey(id))
+                return false;
+            }
+            if (!_musicTable.ContainsKey(id))
+            {
+                string oldMusicName = _preMusicTable[id].ToLower();
+                string newMusicID = Program.paramFile.Prefix + _firstID;
+                string musicFilePath = Program.paramFile.MusicDirectory + oldMusicName + ".mus";
+                //Console.WriteLine("Music file path: " + musicFilePath);
+                //Console.ReadLine();
+                if (File.Exists(musicFilePath))
                 {
-                    _musicTable.Add(id, _firstID);
-                    string oldMusicName = _preMusicTable[id].ToLower();
-                    string newMusicID = Program.paramFile.Prefix + _firstID;
-                    string musicFilePath = Program.paramFile.MusicDirectory  + oldMusicName + ".mus";
-                    //Console.WriteLine("Music file path: " + musicFilePath);
-                    //Console.ReadLine();
-                    if (File.Exists(musicFilePath))
-                    {
-                        string newMusicPath = _postConversionMusicDirectory + newMusicID + ".mus";
-                        File.Copy(musicFilePath, newMusicPath);
-                        string musText = File.ReadAllText(newMusicPath);
-                        musText = musText.ToUpper().Replace(oldMusicName.ToUpper(), newMusicID.ToUpper());
-                        File.WriteAllText(newMusicPath, musText);
-                        _musFiles.Add(newMusicPath);
-                    }
+                    string newMusicPath = _postConversionMusicDirectory + newMusicID + ".mus";
+                    File.Copy(musicFilePath, newMusicPath);
+                    string musText = File.ReadAllText(newMusicPath);
+                    musText = musText.ToUpper().Replace(oldMusicName.ToUpper(), newMusicID.ToUpper());
+                    File.WriteAllText(newMusicPath, musText);
+                    _musFiles.Add(newMusicPath);
                     if (Directory.Exists(Program.paramFile.MusicDirectory + @"\" + oldMusicName))
                     {
                         string[] acmFiles = Directory.GetFiles(Program.paramFile.MusicDirectory + @"\" + oldMusicName);
@@ -100,10 +99,12 @@ namespace AssetConverter
                             }
                             _acmFiles[newMusicID].Add(musicName);
                         }
+                        _musicTable.Add(id, _firstID);
+                        _firstID++;
                     }
-                    _firstID++;
                 }
             }
+            return true;
         }
         public static int SongCount
         {

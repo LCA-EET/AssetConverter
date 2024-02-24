@@ -8,9 +8,15 @@ namespace AssetConverter
 {
     public static class MasterTRA
     {
+        private static Dictionary<int, TRARef> _destinationReferences;
         private static Dictionary<int, TRARef> _tlkReferences;
         private static Dictionary<int, TRARef> _stringList;
         private static int _firstIndex = 10000;
+        public static void LoadDestinationTRA(string path)
+        {
+            _destinationReferences = new Dictionary<int, TRARef>();
+
+        }
         public static void InitializeMasterTRA(string tlkFile) 
         {
             _firstIndex = (int)Program.paramFile.FirstTRAIndex;

@@ -112,6 +112,7 @@ namespace AssetConverter
             ReplaceScriptReferences();
             ReplaceItemReferences();
             ReplaceScriptName();
+            //_contents[0x274] = 0x00;
             ReplaceDLG();
         }
         private void ReplaceScriptName()

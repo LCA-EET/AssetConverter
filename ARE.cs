@@ -49,8 +49,17 @@ namespace AssetConverter
             for(int i = 0; i < numSongs; i++)
             {
                 int songID = BitConverter.ToInt32(_contents, songsOffset);
-                _songTable.Add(songsOffset, songID);
-                MusicTable.AddSong(songID);
+                if (MusicTable.AddSong(songID))
+                {
+                    _songTable.Add(songsOffset, songID);
+                }
+                else
+                {
+                    _contents[songsOffset] = 0x00;
+                    _contents[songsOffset + 1] = 0x00;
+                    _contents[songsOffset + 2] = 0x00;
+                    _contents[songsOffset + 3] = 0x00;
+                }
                 songsOffset += 4;
             }
         }
@@ -189,7 +198,7 @@ namespace AssetConverter
                     int songID = _songTable[songOffset];
                     if (MusicTable.SongExists(songID))
                     {
-                        toReturn += "\tWRITE_LONG " + songOffset + " %xa" + MusicTable.GetUpdatedReference(songID) + "%" + Environment.NewLine; 
+                        toReturn += "\tWRITE_LONG " + songOffset + " %" + Program.paramFile.Prefix + MusicTable.GetUpdatedReference(songID) + "%" + Environment.NewLine; 
                     }
                 }
                 return toReturn;
