@@ -8,6 +8,7 @@ namespace AssetConverter
 {
     public static class ResourceManager
     {
+        private static Dictionary<string, string> _scriptNames;
         private static Dictionary<string, Dictionary<string, IEResRef>> _assetTable;
         private static Dictionary<string, IEResRef> _resourceQueue;
         private static Dictionary<string, string> _dialogRegistry;
@@ -19,6 +20,7 @@ namespace AssetConverter
         private static string _modFolder;
         private static HashSet<string> _doNotLoad;
         private static Dictionary<string, int> _nextIDTable;
+        
         //private static int _nextID;
         
         public static void Initialize(string preConversionDirectory, string postConversionDirectory, string queueFilePath, string weiduPath, string filePrefix, string modFolder)
@@ -26,6 +28,7 @@ namespace AssetConverter
 
             //_nextID = 1000;
             _nextIDTable = new Dictionary<string, int>();
+            _scriptNames = new Dictionary<string, string>();   
             _filePrefix = filePrefix;
             _doNotLoad  = new HashSet<string>();
             _resourceQueue = new Dictionary<string, IEResRef>();
@@ -69,6 +72,13 @@ namespace AssetConverter
                 _weiduPath = weiduPath;
             }
             
+        }
+        public static void RegisterRevisedScriptName(string oldName, string newName)
+        {
+            if (!_scriptNames.ContainsKey(oldName.ToUpper()))
+            {
+                _scriptNames.Add(oldName.ToUpper(), newName.ToUpper());
+            }
         }
         public static string ReadString_Latin1(byte[] contents, int start, int length)
         {
@@ -148,6 +158,12 @@ namespace AssetConverter
                 Dictionary<string, IEResRef> innerTable = _assetTable[key];
                 if(key == "baf" && _assetTable[key].Count > 0)
                 {
+                    Dictionary<string, IEResRef> bafAssets = _assetTable[key];
+                    foreach(IEResRef assetRef in bafAssets.Values)
+                    {
+                        ((BAF)(assetRef.LoadedAsset)).PerformPostProcessing();
+                    }
+
                     output += "PRINT ~Compiling scripts...~" + Environment.NewLine;
                     output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "baf~" + Environment.NewLine;
                 }
@@ -282,6 +298,8 @@ namespace AssetConverter
                             }
                             break;
                         case "baf":
+                            loadedAsset = new BAF(assetPath, postConversionPath, resRef);
+                            break;
                         case "bam":
                         case "bmp":
                         case "eff":
