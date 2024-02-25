@@ -39,6 +39,10 @@ namespace AssetConverter
                                 lines[ifLine] = "/*IF";
                                 break;
                             }
+                            else if (lines[j] == "/*IF")
+                            {
+                                break;
+                            }
                         }
 
                         for(int j = i; j <lines.Length; j++)
@@ -47,6 +51,10 @@ namespace AssetConverter
                             {
                                 endLine = j;
                                 lines[endLine] = "END*/";
+                                break;
+                            }
+                            else if (lines[j] == "END*/")
+                            {
                                 break;
                             }
                         }

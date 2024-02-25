@@ -148,9 +148,9 @@ namespace AssetConverter
             }
             foreach (string key in _assetTable.Keys)
             {
-                if(key == "dlg")
+                if(key == "dlg" && _assetTable[key].Count > 0)
                 {
-                    output += "PRINT ~Compiling dialogs...~" + Environment.NewLine;
+                    //output += "PRINT ~Compiling dialogs...~" + Environment.NewLine;
                     output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "d~" + Environment.NewLine;
                 }
                 output += "//" + key + " files" + Environment.NewLine;
@@ -164,13 +164,13 @@ namespace AssetConverter
                         ((BAF)(assetRef.LoadedAsset)).PerformPostProcessing();
                     }
 
-                    output += "PRINT ~Compiling scripts...~" + Environment.NewLine;
+                    //output += "PRINT ~Compiling scripts...~" + Environment.NewLine;
                     output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "baf~" + Environment.NewLine;
                 }
-                output += "PRINT ~Processing " + key + " files...~" + Environment.NewLine;
+               // output += "PRINT ~Processing " + key + " files...~" + Environment.NewLine;
                 foreach (IEResRef resRef in innerTable.Values)
                 {
-                    output += "PRINT ~Processing " + resRef.NewReferenceID +"." + resRef.ResourceType +"~" + Environment.NewLine;
+                    //output += "PRINT ~Processing " + resRef.NewReferenceID +"." + resRef.ResourceType +"~" + Environment.NewLine;
                     refoutput += resRef.OldReferenceID + "." + resRef.ResourceType + "::" + resRef.NewReferenceID + "." + resRef.ResourceType +  Environment.NewLine;
                     if(resRef.ResourceType != "dlg")
                     {
@@ -187,12 +187,12 @@ namespace AssetConverter
             string bmpDirectory = _postConversionDirectory + "bmp\\";
             if (Directory.Exists(mosDirectory))
             {
-                output += "PRINT ~Copying MOS...~" + Environment.NewLine;
+                //output += "PRINT ~Copying MOS...~" + Environment.NewLine;
                 DirectoryContentsToTP2(mosDirectory, "mos", ref output);
             }
             if(Directory.Exists(bmpDirectory))
             {
-                output += "PRINT ~Copying BMP...~" + Environment.NewLine;
+                //output += "PRINT ~Copying BMP...~" + Environment.NewLine;
                 DirectoryContentsToTP2(bmpDirectory, "bmp", ref output);
             }
             File.WriteAllText(_postConversionDirectory + "generated.tph", output);
