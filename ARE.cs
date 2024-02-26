@@ -65,11 +65,11 @@ namespace AssetConverter
         }
         private void ReplaceAnimations()
         {
-            int numAnimations = BitConverter.ToInt16(_contents, 0xAC);
+            int numAnimations = BitConverter.ToInt32(_contents, 0xAC);
             int offset = BitConverter.ToInt32(_contents, 0xB0);
             for(int i = 0; i < numAnimations; i++)
             {
-                ReplaceReference(offset + 8, "bam");
+                ReplaceReference(offset + 0x28, "bam");
                 offset += 0x4C;
             }
         }
