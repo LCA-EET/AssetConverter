@@ -31,10 +31,7 @@ namespace AssetConverter
             }
             else
             {
-                for(int b = 0; b < 8; b++)
-                {
-                    _contents[0x94 + b] = 0x00;
-                }
+                ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes, true); // Area Script
             }
             
             ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED

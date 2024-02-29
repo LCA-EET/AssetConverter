@@ -44,6 +44,10 @@ namespace AssetConverter
         }
         public string ReplaceReference(int offset, string type, byte[] newResourceID)
         {
+            return ReplaceReference(offset, type, newResourceID, false);
+        }
+        public string ReplaceReference(int offset, string type, byte[] newResourceID, bool skipLoad)
+        {
             string reference = DetermineReferenceFromBytes(_contents, offset);
             if(DAL.AssetExistsInDestination(reference, type))
             {
@@ -54,7 +58,7 @@ namespace AssetConverter
             {
                 return reference;
             }
-            newReference = ResourceManager.AddResourceToQueue(reference, type, newResourceID);
+            newReference = ResourceManager.AddResourceToQueue(reference, type, newResourceID, skipLoad);
             for (int j = 0; j < newReference.Length; j++)
             {
                 _contents[offset + j] = newReference[j];

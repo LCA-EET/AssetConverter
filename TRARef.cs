@@ -69,7 +69,7 @@ namespace AssetConverter
         {
             if (_wavIncluded)
             {
-                byte[] replacementReference = ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(_oldWavID.ToLower(), "wav"));
+                byte[] replacementReference = ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(_oldWavID.ToLower(), "wav", false));
                 _newWavID = Encoding.Latin1.GetString(replacementReference);
             }
         }

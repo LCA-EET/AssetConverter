@@ -13,16 +13,14 @@ namespace AssetConverter
         private string _resourceType;
         private byte[] _newReferenceBytes;
         private IEAsset _loadedAsset;
-        private IEResRef(string resource, string resourceType)
+        private bool _skipLoad;
+        private IEResRef(string resource, string resourceType, bool skipLoad)
         {
             _oldReferenceID = resource;
             _resourceType = resourceType;
+            _skipLoad = skipLoad;
         }
-        public IEResRef(string resource, string resourceType, string newReferenceID) : this(resource, resourceType)
-        {
-            _newReferenceID = newReferenceID;
-        }
-        public IEResRef(string resource, string resourceType, byte[] resourceID) : this(resource, resourceType)
+        public IEResRef(string resource, string resourceType, bool skipLoad, byte[] resourceID) : this(resource, resourceType, skipLoad)
         {
             _newReferenceBytes = resourceID;
             int charsToTrim = 0;
@@ -38,6 +36,13 @@ namespace AssetConverter
                 }
             }
             _newReferenceID = Encoding.Latin1.GetString(resourceID).Substring(0, 8 - charsToTrim);
+        }
+        public bool SkipLoad
+        {
+            get
+            {
+                return _skipLoad;
+            }
         }
         public byte[] ReferenceBytes
         {

@@ -8,6 +8,7 @@ namespace AssetConverter
 {
     public static class ResourceManager
     {
+        private static Dictionary<string, string> _pvrzTable;
         private static Dictionary<string, string> _scriptNames;
         private static Dictionary<string, Dictionary<string, IEResRef>> _assetTable;
         private static Dictionary<string, IEResRef> _resourceQueue;
@@ -27,6 +28,7 @@ namespace AssetConverter
         {
 
             //_nextID = 1000;
+            _pvrzTable = new Dictionary<string, string>();
             _nextIDTable = new Dictionary<string, int>();
             _scriptNames = new Dictionary<string, string>();   
             _filePrefix = filePrefix;
@@ -72,6 +74,10 @@ namespace AssetConverter
                 _weiduPath = weiduPath;
             }
             
+        }
+        public static void AddPVRZ(string oldPath, string newPath)
+        {
+            _pvrzTable.Add(oldPath, newPath);
         }
         public static void RegisterRevisedScriptName(string oldName, string newName)
         {
@@ -128,7 +134,7 @@ namespace AssetConverter
                 else
                 {
                     string[] splitResource = resourceLower.Split('.');
-                    AddResourceToQueue(splitResource[0], splitResource[1]);
+                    AddResourceToQueue(splitResource[0], splitResource[1], false);
                 }
             }
             LoadResources();
@@ -181,7 +187,21 @@ namespace AssetConverter
                 output += Environment.NewLine;
                 
             }
-            
+            if (_pvrzTable.Count > 0)
+            {
+                if(!Directory.Exists(_postConversionDirectory + "pvrz"))
+                {
+                    output += "//{ PVRZ" + Environment.NewLine; ;
+                    Directory.CreateDirectory(_postConversionDirectory + "pvrz");
+                    foreach(string pvrzFile in _pvrzTable.Keys)
+                    {
+                        File.Copy(pvrzFile, _pvrzTable[pvrzFile]);
+                        
+                        output += "\tCOPY ~" + Program.paramFile.ModFolder + "pvrz\\" + Path.GetFileName(_pvrzTable[pvrzFile]) + "~ ~override~" + Environment.NewLine; 
+                    }
+                    output += "//}" + Environment.NewLine;
+                }
+            }
             
             string mosDirectory = _postConversionDirectory + "mos\\";
             string bmpDirectory = _postConversionDirectory + "bmp\\";
@@ -242,97 +262,103 @@ namespace AssetConverter
             List<IEResRef> toProcess = [.. _resourceQueue.Values];
             foreach (IEResRef resRef in toProcess)
             {
-                //Console.WriteLine("Loading reference " + resRef.OldReferenceID + "." + resRef.ResourceType);
                 newlyLoaded.Add(resRef.OldReferenceID + "." + resRef.ResourceType);
-                string assetPath = _preConversionDirectory + resRef.ResourceType + "\\" + resRef.OldReferenceID + "." + resRef.ResourceType;
-                string postConversionPath = _postConversionDirectory + resRef.ResourceType + "\\" + resRef.NewReferenceID + "." + resRef.ResourceType;
-                IEAsset loadedAsset = null;
-                
-                if (File.Exists(assetPath))
+                if (!resRef.SkipLoad)
                 {
-                    switch (resRef.ResourceType)
+                    //Console.WriteLine("Loading reference " + resRef.OldReferenceID + "." + resRef.ResourceType);
+                    
+                    string assetPath = _preConversionDirectory + resRef.ResourceType + "\\" + resRef.OldReferenceID + "." + resRef.ResourceType;
+                    string postConversionPath = _postConversionDirectory + resRef.ResourceType + "\\" + resRef.NewReferenceID + "." + resRef.ResourceType;
+                    IEAsset loadedAsset = null;
+
+                    if (File.Exists(assetPath))
                     {
-                        case "are":
-                            //Console.WriteLine("... Resource is an area.");
-                            loadedAsset = new ARE(assetPath, postConversionPath, resRef);
-                            if (!Directory.Exists(_postConversionDirectory + "bmp"))
-                            {
-                                Directory.CreateDirectory(_postConversionDirectory + "bmp");
-                            }
-                            List<string> areaBMPs = new List<string>()
+                        switch (resRef.ResourceType)
+                        {
+                            case "are":
+                                //Console.WriteLine("... Resource is an area.");
+                                loadedAsset = new ARE(assetPath, postConversionPath, resRef);
+                                if (!Directory.Exists(_postConversionDirectory + "bmp"))
+                                {
+                                    Directory.CreateDirectory(_postConversionDirectory + "bmp");
+                                }
+                                List<string> areaBMPs = new List<string>()
                             {
                                 _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ht.bmp",
                                 _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "lm.bmp",
                                 _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ln.bmp",
                                 _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "sr.bmp",
                             };
-                            foreach (string bmp in areaBMPs)
-                            {
-                                if (File.Exists(bmp))
+                                foreach (string bmp in areaBMPs)
                                 {
-                                    File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
+                                    if (File.Exists(bmp))
+                                    {
+                                        File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
+                                    }
                                 }
-                            }
-                            if (!Directory.Exists(_postConversionDirectory + "mos"))
-                            {
-                                Directory.CreateDirectory(_postConversionDirectory + "mos");
-                            }
-                            List<string> areaMOS = new List<string>()
+                                if (!Directory.Exists(_postConversionDirectory + "mos"))
+                                {
+                                    Directory.CreateDirectory(_postConversionDirectory + "mos");
+                                }
+                                List<string> areaMOS = new List<string>()
                             {
                                 _preConversionDirectory + "mos\\" + resRef.OldReferenceID + ".mos",
                                 _preConversionDirectory + "mos\\" + resRef.OldReferenceID + "n.mos",
                             };
-                            foreach (string mos in areaMOS)
-                            {
-                                if (File.Exists(mos))
+                                foreach (string mos in areaMOS)
                                 {
-                                    if (mos.EndsWith("n.mos"))
+                                    if (File.Exists(mos))
                                     {
-                                        File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + "n.mos", true);
-                                    }
-                                    else
-                                    {
-                                        File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + ".mos", true);
+                                        if (mos.EndsWith("n.mos"))
+                                        {
+                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + "n.mos", true);
+                                        }
+                                        else
+                                        {
+                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + ".mos", true);
+                                        }
                                     }
                                 }
-                            }
-                            break;
-                        case "baf":
-                            loadedAsset = new BAF(assetPath, postConversionPath, resRef);
-                            break;
-                        case "bam":
-                        case "bmp":
-                        case "eff":
-                        case "tis":
-                            loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
-                            break;
-                        case "wav":
-                            if (Program.paramFile.IncludeWAVs)
-                            {
+                                break;
+                            case "baf":
+                                loadedAsset = new BAF(assetPath, postConversionPath, resRef);
+                                break;
+                            case "bam":
+                            case "bmp":
+                            case "eff":
                                 loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
-                            }
-                            break;
-                        case "wed":
-                            loadedAsset = new WED(assetPath, postConversionPath, resRef);
-                            break;
-                        case "sto":
-                            loadedAsset = new STO(assetPath, postConversionPath, resRef);
-                            break;
-                        case "itm":
-                            loadedAsset = new ITM(assetPath, postConversionPath, resRef);
-                            break;
-                        case "dlg":
-                            loadedAsset = new DLG(assetPath, postConversionPath, resRef);
-                            break;
-                        case "cre":
-                            loadedAsset = new CRE(assetPath, postConversionPath, resRef);
-                            break;
+                                break;
+                            case "tis":
+                                loadedAsset = new TIS(assetPath, postConversionPath, resRef);
+                                break;
+                            case "wav":
+                                if (Program.paramFile.IncludeWAVs)
+                                {
+                                    loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                                }
+                                break;
+                            case "wed":
+                                loadedAsset = new WED(assetPath, postConversionPath, resRef);
+                                break;
+                            case "sto":
+                                loadedAsset = new STO(assetPath, postConversionPath, resRef);
+                                break;
+                            case "itm":
+                                loadedAsset = new ITM(assetPath, postConversionPath, resRef);
+                                break;
+                            case "dlg":
+                                loadedAsset = new DLG(assetPath, postConversionPath, resRef);
+                                break;
+                            case "cre":
+                                loadedAsset = new CRE(assetPath, postConversionPath, resRef);
+                                break;
+                        }
                     }
-                }
-                if(loadedAsset != null)
-                {
-                    resRef.LoadedAsset = loadedAsset;
-                    _assetTable[resRef.ResourceType].Add(resRef.OldReferenceID, resRef);
+                    if (loadedAsset != null)
+                    {
+                        resRef.LoadedAsset = loadedAsset;
+                        _assetTable[resRef.ResourceType].Add(resRef.OldReferenceID, resRef);
+                    }
                 }
             }
             foreach (string resourceID in newlyLoaded)
@@ -415,7 +441,7 @@ namespace AssetConverter
         {
             return _assetTable[resourceType][resourceID].ReferenceBytes;
         }
-        public static byte[] AddResourceToQueue(string resourceID, string resourceType, byte[] nextResourceID)
+        public static byte[] AddResourceToQueue(string resourceID, string resourceType, byte[] nextResourceID, bool skipLoad)
         {
             if(nextResourceID == null)
             {
@@ -438,7 +464,7 @@ namespace AssetConverter
                 }
                 if (!_assetTable[resourceType].ContainsKey(resourceID))
                 {
-                    IEResRef toAdd = new IEResRef(resourceID, resourceType, nextResourceID);
+                    IEResRef toAdd = new IEResRef(resourceID, resourceType, skipLoad, nextResourceID);
                     _resourceQueue.Add(resourceIDandType, toAdd);
                     return toAdd.ReferenceBytes;
                 }
@@ -452,9 +478,9 @@ namespace AssetConverter
                 return _resourceQueue[resourceIDandType].ReferenceBytes;
             }
         }
-        public static byte[] AddResourceToQueue(string resourceID, string resourceType)
+        public static byte[] AddResourceToQueue(string resourceID, string resourceType, bool skipLoad)
         {
-            return AddResourceToQueue(resourceID, resourceType, GetNextResourceID(resourceType));
+            return AddResourceToQueue(resourceID, resourceType, GetNextResourceID(resourceType), skipLoad);
         }
 
     }

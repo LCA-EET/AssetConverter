@@ -176,12 +176,12 @@ namespace AssetConverter
                 TRARef text = _resolvedReferences[offset];
                 int referenceID = MasterTRA.ConvertToReference(text);
                 //toReturn += "SAY " + key + " @" + referenceID + " /* " + text + " */" + Environment.NewLine;
-                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + referenceID + ") /*" + MasterTRA.GetTRAReferenced_Used(referenceID) + "*/" + Environment.NewLine;
+                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + referenceID + ") /*" + MasterTRA.GetTRAReferenced_Used(referenceID).TLKString + "*/" + Environment.NewLine;
             }
             foreach (int offset in _longs.Keys) {
                 int newReferenceID = MasterTRA.ConvertToReference(MasterTRA.GetTRAReference_TLK((int)_longs[offset]));
 
-                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + newReferenceID + ") /*" + MasterTRA.GetTRAReferenced_Used(newReferenceID) + "*/" + Environment.NewLine; ;
+                toReturn += "\tWRITE_LONG " + offset + " RESOLVE_STR_REF(@" + newReferenceID + ") /*" + MasterTRA.GetTRAReferenced_Used(newReferenceID).TLKString + "*/" + Environment.NewLine; ;
             }
             return toReturn;
         }

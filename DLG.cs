@@ -68,7 +68,7 @@ namespace AssetConverter
                         {
                             reference = currentLine.Split(storeFlag)[1].ToLower();
                             string storeName = reference.Split("\"")[0];
-                            string newResourceID = Encoding.Latin1.GetString(ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(storeName, "sto")));
+                            string newResourceID = Encoding.Latin1.GetString(ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(storeName, "sto", false)));
                             lineContents[i] = currentLine.Replace(storeName, newResourceID, StringComparison.OrdinalIgnoreCase);
                             
                             changeMade = true;
