@@ -263,7 +263,7 @@ namespace AssetConverter
             foreach (IEResRef resRef in toProcess)
             {
                 newlyLoaded.Add(resRef.OldReferenceID + "." + resRef.ResourceType);
-                if (!resRef.SkipLoad)
+                if (resRef.SkipLoad == false)
                 {
                     //Console.WriteLine("Loading reference " + resRef.OldReferenceID + "." + resRef.ResourceType);
                     
@@ -360,6 +360,11 @@ namespace AssetConverter
                         _assetTable[resRef.ResourceType].Add(resRef.OldReferenceID, resRef);
                     }
                 }
+                else
+                {
+                    Console.WriteLine("Asset skipped: " + resRef.OldReferenceID + "." + resRef.ResourceType);
+                    //Console.ReadLine();
+                }
             }
             foreach (string resourceID in newlyLoaded)
             {
@@ -436,10 +441,6 @@ namespace AssetConverter
                 toReturnBytes.Add(0x00);
             }
             return toReturnBytes.ToArray();
-        }
-        private static byte[] GetReplacementResource(string resourceID, string resourceType)
-        {
-            return _assetTable[resourceType][resourceID].ReferenceBytes;
         }
         public static byte[] AddResourceToQueue(string resourceID, string resourceType, byte[] nextResourceID, bool skipLoad)
         {

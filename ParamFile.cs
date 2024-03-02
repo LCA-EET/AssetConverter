@@ -79,6 +79,8 @@ namespace AssetConverter
                 SongListPath = lines[11];
                 MusicDirectory = lines[12];
                 IncludeAreaScripts = int.Parse(lines[13]) == 1 ? true : false;
+                Console.WriteLine("Area Scripts Included: " + IncludeAreaScripts.ToString());
+                //Console.ReadLine();
                 DestinationAssetList = lines[14];
             }
             catch(Exception ex)

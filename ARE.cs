@@ -31,7 +31,18 @@ namespace AssetConverter
             }
             else
             {
-                ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes, true); // Area Script
+                string newPrefix = Program.paramFile.Prefix + "s" + _owningReference.NewReferenceID.Substring(3);
+                List<byte> asReferenceBytes = new List<byte>(Encoding.Latin1.GetBytes(newPrefix));
+                while(asReferenceBytes.Count < 8) 
+                {
+                    asReferenceBytes.Add(0x00);
+                }
+                ReplaceReference(0x94, "baf", asReferenceBytes.ToArray(), true); // Area Script
+                if(!Directory.Exists(Program.paramFile.PostconversionDirectory + "baf"))
+                {
+                    Directory.CreateDirectory(Program.paramFile.PostconversionDirectory + "baf");
+                }
+                File.WriteAllBytes(Program.paramFile.PostconversionDirectory + "baf\\" + newPrefix + ".baf", new byte[] {  });
             }
             
             ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED

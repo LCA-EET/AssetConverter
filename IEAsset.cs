@@ -49,7 +49,7 @@ namespace AssetConverter
         public string ReplaceReference(int offset, string type, byte[] newResourceID, bool skipLoad)
         {
             string reference = DetermineReferenceFromBytes(_contents, offset);
-            if(DAL.AssetExistsInDestination(reference, type))
+            if(type != "baf" && DAL.AssetExistsInDestination(reference, type))
             {
                 return reference;
             }
@@ -66,6 +66,10 @@ namespace AssetConverter
             string toReturn = DetermineReferenceFromBytes(newReference, 0);
             //Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
             return toReturn;
+        }
+        public string ReplaceReference(int offset, string type, bool skip)
+        {
+            return ReplaceReference(offset, type, null, skip);
         }
         public string ReplaceReference(int offset, string type)
         {
