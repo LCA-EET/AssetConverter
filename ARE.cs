@@ -26,6 +26,7 @@ namespace AssetConverter
             ReplaceItems();
             ReplaceMapNotes();
             ReplaceContainerKeys();
+            ReplaceSpawnPoints();
             if (Program.paramFile.IncludeAreaScripts)
             {
                 ReplaceReference(0x94, "baf", _owningReference.ReferenceBytes); // Area Script
@@ -49,6 +50,21 @@ namespace AssetConverter
             ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED
             ReplaceAnimations();
             GenerateSongList();
+        }
+        private void ReplaceSpawnPoints()
+        {
+            int spawnPointOffset = BitConverter.ToInt32(_contents, 0x60);
+            int numPoints = BitConverter.ToInt32(_contents, 0x64);
+
+            for(int i = 0; i < numPoints; i++)
+            {
+                int numCreatures = BitConverter.ToInt16(_contents, spawnPointOffset + 0x74);
+                for(int j = 0; j < numCreatures; j++)
+                {
+                    ReplaceReference(spawnPointOffset + 0x24 + (j * 0x08), "cre");
+                }
+                spawnPointOffset += 0xC8;
+            }
         }
         private void ReplaceMapNotes()
         {

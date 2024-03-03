@@ -178,7 +178,7 @@ namespace AssetConverter
                 {
                     //output += "PRINT ~Processing " + resRef.NewReferenceID +"." + resRef.ResourceType +"~" + Environment.NewLine;
                     refoutput += resRef.OldReferenceID + "." + resRef.ResourceType + "::" + resRef.NewReferenceID + "." + resRef.ResourceType +  Environment.NewLine;
-                    if(resRef.ResourceType != "dlg")
+                    if(resRef.ResourceType != "dlg" && resRef.ResourceType != "baf")
                     {
                         output += resRef.LoadedAsset.ToTP2String();
                     }

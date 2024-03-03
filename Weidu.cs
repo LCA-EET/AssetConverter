@@ -55,6 +55,10 @@ namespace AssetConverter
 
         public static void WeiduGenerateTLK()
         {
+            if(File.Exists(_weiduDirectory + "text.tra"))
+            {
+                File.Delete(_weiduDirectory + "text.tra");
+            }
             ProcessStartInfo startInfo = new ProcessStartInfo(_weiduPath);
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = _weiduDirectory;
