@@ -24,6 +24,7 @@ namespace AssetConverter
             ReplaceDoorKeys();
             ReplaceTriggers();
             ReplaceItems();
+            ReplaceMapNotes();
             ReplaceContainerKeys();
             if (Program.paramFile.IncludeAreaScripts)
             {
@@ -49,7 +50,21 @@ namespace AssetConverter
             ReplaceAnimations();
             GenerateSongList();
         }
-
+        private void ReplaceMapNotes()
+        {
+            int noteOffset = BitConverter.ToInt32(_contents, 0xC4);
+            int numNotes = BitConverter.ToInt32(_contents, 0xC8);
+            int textRef = 0;
+            for(int i = 0; i < numNotes; i++)
+            {
+                textRef = BitConverter.ToInt32(_contents, noteOffset + 4);
+                if (textRef > 0)
+                {
+                    _stringReferences.AddLong(noteOffset + 4, textRef);
+                }
+                noteOffset += 0x34;
+            }
+        }
         private void GenerateSongList()
         {
             int songsOffset = BitConverter.ToInt32(_contents, 0xbc);
