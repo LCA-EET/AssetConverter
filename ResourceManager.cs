@@ -276,49 +276,7 @@ namespace AssetConverter
                         switch (resRef.ResourceType)
                         {
                             case "are":
-                                //Console.WriteLine("... Resource is an area.");
                                 loadedAsset = new ARE(assetPath, postConversionPath, resRef);
-                                if (!Directory.Exists(_postConversionDirectory + "bmp"))
-                                {
-                                    Directory.CreateDirectory(_postConversionDirectory + "bmp");
-                                }
-                                List<string> areaBMPs = new List<string>()
-                            {
-                                _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ht.bmp",
-                                _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "lm.bmp",
-                                _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ln.bmp",
-                                _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "sr.bmp",
-                            };
-                                foreach (string bmp in areaBMPs)
-                                {
-                                    if (File.Exists(bmp))
-                                    {
-                                        File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
-                                    }
-                                }
-                                if (!Directory.Exists(_postConversionDirectory + "mos"))
-                                {
-                                    Directory.CreateDirectory(_postConversionDirectory + "mos");
-                                }
-                                List<string> areaMOS = new List<string>()
-                            {
-                                _preConversionDirectory + "mos\\" + resRef.OldReferenceID + ".mos",
-                                _preConversionDirectory + "mos\\" + resRef.OldReferenceID + "n.mos",
-                            };
-                                foreach (string mos in areaMOS)
-                                {
-                                    if (File.Exists(mos))
-                                    {
-                                        if (mos.EndsWith("n.mos"))
-                                        {
-                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + "n.mos", true);
-                                        }
-                                        else
-                                        {
-                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + ".mos", true);
-                                        }
-                                    }
-                                }
                                 break;
                             case "baf":
                                 loadedAsset = new BAF(assetPath, postConversionPath, resRef);
@@ -339,6 +297,47 @@ namespace AssetConverter
                                 break;
                             case "wed":
                                 loadedAsset = new WED(assetPath, postConversionPath, resRef);
+                                if (!Directory.Exists(_postConversionDirectory + "bmp"))
+                                {
+                                    Directory.CreateDirectory(_postConversionDirectory + "bmp");
+                                }
+                                List<string> wedBMPs = new List<string>()
+                                {
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ht.bmp",
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "lm.bmp",
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ln.bmp",
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "sr.bmp",
+                                };
+                                foreach (string bmp in wedBMPs)
+                                {
+                                    if (File.Exists(bmp))
+                                    {
+                                        File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
+                                    }
+                                }
+                                if (!Directory.Exists(_postConversionDirectory + "mos"))
+                                {
+                                    Directory.CreateDirectory(_postConversionDirectory + "mos");
+                                }
+                                List<string> wedMOS = new List<string>()
+                                {
+                                    _preConversionDirectory + "mos\\" + resRef.OldReferenceID + ".mos",
+                                    _preConversionDirectory + "mos\\" + resRef.OldReferenceID + "n.mos",
+                                };
+                                foreach (string mos in wedMOS)
+                                {
+                                    if (File.Exists(mos))
+                                    {
+                                        if (mos.EndsWith("n.mos"))
+                                        {
+                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + "n.mos", true);
+                                        }
+                                        else
+                                        {
+                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + ".mos", true);
+                                        }
+                                    }
+                                }
                                 break;
                             case "sto":
                                 loadedAsset = new STO(assetPath, postConversionPath, resRef);

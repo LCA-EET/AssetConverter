@@ -112,6 +112,8 @@ namespace AssetConverter
             ReplaceScriptReferences();
             ReplaceItemReferences();
             ReplaceScriptName();
+            ReplaceReference(0x34, "bmp");
+            ReplaceReference(0x3C, "bmp");
             //_contents[0x274] = 0x00;
             ReplaceDLG();
         }
