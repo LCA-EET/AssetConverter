@@ -148,7 +148,15 @@ namespace AssetConverter
         }
         private void ReplaceDLG()
         {
-            ReplaceReference(0x2cc, "dlg");
+            if (Program.paramFile.IncludeDialogs)
+            {
+                ReplaceReference(0x2cc, "dlg");
+            }
+            else
+            {
+                WriteNullBytes(0x2cc, 8);
+            }
+            
         }
 
         public override string ToTP2String()

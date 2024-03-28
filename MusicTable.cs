@@ -73,34 +73,38 @@ namespace AssetConverter
                 if (File.Exists(musicFilePath))
                 {
                     string newMusicPath = _postConversionMusicDirectory + newMusicID + ".mus";
-                    File.Copy(musicFilePath, newMusicPath);
-                    string musText = File.ReadAllText(newMusicPath);
-                    musText = musText.ToUpper().Replace(oldMusicName.ToUpper(), newMusicID.ToUpper());
-                    File.WriteAllText(newMusicPath, musText);
-                    _musFiles.Add(newMusicPath);
-                    if (Directory.Exists(Program.paramFile.MusicDirectory + @"\" + oldMusicName))
+                    if(!File.Exists(newMusicPath))
                     {
-                        string[] acmFiles = Directory.GetFiles(Program.paramFile.MusicDirectory + @"\" + oldMusicName);
-                        if (!Directory.Exists(_postConversionMusicDirectory + newMusicID))
+
+                        File.Copy(musicFilePath, newMusicPath);
+                        string musText = File.ReadAllText(newMusicPath);
+                        musText = musText.ToUpper().Replace(oldMusicName.ToUpper(), newMusicID.ToUpper());
+                        File.WriteAllText(newMusicPath, musText);
+                        _musFiles.Add(newMusicPath);
+                        if (Directory.Exists(Program.paramFile.MusicDirectory + @"\" + oldMusicName))
                         {
-                            Directory.CreateDirectory(_postConversionMusicDirectory + newMusicID);
-                        }
-                        foreach (string acmFile in acmFiles)
-                        {
-                            string[] split = acmFile.Split("\\");
-                            string musicName = split[split.Length - 1];
-                            musicName = musicName.ToLower().Replace(oldMusicName, newMusicID);
-                            string newACMPath = _postConversionMusicDirectory + newMusicID + @"\" + musicName;
-                            Console.WriteLine(newACMPath);
-                            File.Copy(acmFile, newACMPath);
-                            if (!_acmFiles.ContainsKey(newMusicID))
+                            string[] acmFiles = Directory.GetFiles(Program.paramFile.MusicDirectory + @"\" + oldMusicName);
+                            if (!Directory.Exists(_postConversionMusicDirectory + newMusicID))
                             {
-                                _acmFiles.Add(newMusicID, new List<string>());
+                                Directory.CreateDirectory(_postConversionMusicDirectory + newMusicID);
                             }
-                            _acmFiles[newMusicID].Add(musicName);
+                            foreach (string acmFile in acmFiles)
+                            {
+                                string[] split = acmFile.Split("\\");
+                                string musicName = split[split.Length - 1];
+                                musicName = musicName.ToLower().Replace(oldMusicName, newMusicID);
+                                string newACMPath = _postConversionMusicDirectory + newMusicID + @"\" + musicName;
+                                Console.WriteLine(newACMPath);
+                                File.Copy(acmFile, newACMPath);
+                                if (!_acmFiles.ContainsKey(newMusicID))
+                                {
+                                    _acmFiles.Add(newMusicID, new List<string>());
+                                }
+                                _acmFiles[newMusicID].Add(musicName);
+                            }
+                            _musicTable.Add(id, _firstID);
+                            _firstID++;
                         }
-                        _musicTable.Add(id, _firstID);
-                        _firstID++;
                     }
                 }
             }

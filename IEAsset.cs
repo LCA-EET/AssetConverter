@@ -93,7 +93,13 @@ namespace AssetConverter
             }
             return toReturn.Substring(0, 8 - charactersToTrim);
         }
-
+        public void WriteNullBytes(int offset, int length)
+        {
+            for(int i = 0; i < length; i++)
+            {
+                _contents[offset + i] = 0x00;
+            }
+        }
         public virtual string ToTP2String()
         {
             string toReturn = "COPY ~" + Program.paramFile.ModFolder + _owningReference.ResourceType + "\\" + _owningReference.NewReferenceID + "." + _owningReference.ResourceType + "~ ~override~" + Environment.NewLine ;

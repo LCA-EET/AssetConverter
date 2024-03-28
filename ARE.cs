@@ -209,7 +209,15 @@ namespace AssetConverter
             for (int i = 0; i < numActors; i++)
             {
                 int intermediateOffset = actorOffset + 0x48;
-                ReplaceReference((intermediateOffset), "dlg");
+                if (Program.paramFile.IncludeDialogs)
+                {
+                    ReplaceReference((intermediateOffset), "dlg");
+                }
+                else
+                {
+                    WriteNullBytes(0x2cc, 8);
+                }
+               
                 intermediateOffset += 0x08;
                 ReplaceReference((intermediateOffset), "baf");
                 intermediateOffset += 0x08;

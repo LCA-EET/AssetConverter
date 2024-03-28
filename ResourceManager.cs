@@ -171,7 +171,7 @@ namespace AssetConverter
                     }
 
                     //output += "PRINT ~Compiling scripts...~" + Environment.NewLine;
-                    output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "baf~" + Environment.NewLine;
+                    
                 }
                // output += "PRINT ~Processing " + key + " files...~" + Environment.NewLine;
                 foreach (IEResRef resRef in innerTable.Values)
@@ -205,6 +205,7 @@ namespace AssetConverter
             
             string mosDirectory = _postConversionDirectory + "mos\\";
             string bmpDirectory = _postConversionDirectory + "bmp\\";
+            string bafDirectory = _postConversionDirectory + "baf\\";
             if (Directory.Exists(mosDirectory))
             {
                 //output += "PRINT ~Copying MOS...~" + Environment.NewLine;
@@ -214,6 +215,13 @@ namespace AssetConverter
             {
                 //output += "PRINT ~Copying BMP...~" + Environment.NewLine;
                 DirectoryContentsToTP2(bmpDirectory, "bmp", ref output);
+            }
+            if (Directory.Exists(bafDirectory))
+            {
+                if(Directory.GetFiles(bafDirectory).Length > 0)
+                {
+                    output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "baf~" + Environment.NewLine;
+                }
             }
             File.WriteAllText(_postConversionDirectory + "generated.tph", output);
             File.WriteAllText(_postConversionDirectory + "referenceTable.txt", refoutput);

@@ -23,6 +23,8 @@ namespace AssetConverter
         public bool IncludeWAVs { get; set; }
         public int MusicIndex { get; set; }
 
+        public bool IncludeDialogs { get; set; }
+
         public string SongListPath { get; set; }
         public string MusicDirectory { get; set; }
 
@@ -82,6 +84,7 @@ namespace AssetConverter
                 Console.WriteLine("Area Scripts Included: " + IncludeAreaScripts.ToString());
                 //Console.ReadLine();
                 DestinationAssetList = lines[14];
+                IncludeDialogs = int.Parse(lines[15]) == 1 ? true : false;
             }
             catch(Exception ex)
             {

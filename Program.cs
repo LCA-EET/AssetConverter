@@ -54,5 +54,6 @@ namespace AssetConverter
 
             ResourceManager.ProcessResources();
         }    
+        
     }
 }
