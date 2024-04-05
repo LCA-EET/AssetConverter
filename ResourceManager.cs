@@ -347,6 +347,9 @@ namespace AssetConverter
                                     }
                                 }
                                 break;
+                            case "spl":
+                                loadedAsset = new SPL(assetPath, postConversionPath, resRef);
+                                break;
                             case "sto":
                                 loadedAsset = new STO(assetPath, postConversionPath, resRef);
                                 break;

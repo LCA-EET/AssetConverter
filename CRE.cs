@@ -116,6 +116,31 @@ namespace AssetConverter
             ReplaceReference(0x3C, "bmp");
             //_contents[0x274] = 0x00;
             ReplaceDLG();
+            ReplaceKnownSpells();
+            ReplaceMemorizedSpells();
+        }
+        private void ReplaceKnownSpells()
+        {
+            int knownSpellsOffset = BitConverter.ToInt32(_contents, 0x2A0);
+            int numKnownSpells = BitConverter.ToInt32(_contents, 0x2A4);
+
+            for(int i = 0; i < numKnownSpells; i++)
+            {
+                ReplaceReference(knownSpellsOffset, "spl");
+                knownSpellsOffset += 0xC;
+            }
+        }
+        private void ReplaceMemorizedSpells()
+        {
+            int memorizationInfoOffset = BitConverter.ToInt32(_contents, 0x2A8);
+            int numMemorizations = BitConverter.ToInt32(_contents, 0x2AC);
+
+            for (int i = 0; i < numMemorizations;i++)
+            {
+                int numSpells = BitConverter.ToInt32(_contents, memorizationInfoOffset + 12);
+                // LEFT OFF HERE
+                memorizationInfoOffset += 0x10;
+            }
         }
         private void ReplaceScriptName()
         {
