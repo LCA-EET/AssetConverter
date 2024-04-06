@@ -132,14 +132,13 @@ namespace AssetConverter
         }
         private void ReplaceMemorizedSpells()
         {
-            int memorizationInfoOffset = BitConverter.ToInt32(_contents, 0x2A8);
-            int numMemorizations = BitConverter.ToInt32(_contents, 0x2AC);
+            int memorizedSpellsOffset = BitConverter.ToInt32(_contents, 0x2B0);
+            int numMemorizations = BitConverter.ToInt32(_contents, 0x2B4);
 
-            for (int i = 0; i < numMemorizations;i++)
+            for (int i = 0; i < numMemorizations; i++)
             {
-                int numSpells = BitConverter.ToInt32(_contents, memorizationInfoOffset + 12);
-                // LEFT OFF HERE
-                memorizationInfoOffset += 0x10;
+                ReplaceReference(memorizedSpellsOffset, "spl");
+                memorizedSpellsOffset += 0xC;
             }
         }
         private void ReplaceScriptName()
