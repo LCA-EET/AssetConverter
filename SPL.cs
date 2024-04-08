@@ -39,9 +39,10 @@ namespace AssetConverter
 
         public override string ToTP2String()
         {
+            //Console.WriteLine("Spell: " + _preConversionPath);
             string toReturn = base.ToTP2String();
             toReturn += _stringReferences.TP2String();
-            return base.ToTP2String();
+            return toReturn;
         }
     }
 }

@@ -146,7 +146,8 @@ namespace AssetConverter
         private static void GenerateTP2()
         {
             string refoutput = "";
-            string output = "PRINT ~Processing AssetConverter generated elements...~" + Environment.NewLine;
+            string output = "PRINT ~Processing converted asset block: " + Program.paramFile.Prefix + "...~" + Environment.NewLine;
+            output += "SILENT" + Environment.NewLine;
             if (MusicTable.SongCount > 0)
             {
                 File.WriteAllText(_postConversionDirectory + "songsList.txt", MusicTable.TableToString());
