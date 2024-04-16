@@ -131,7 +131,7 @@ namespace AssetConverter
             for (int i = 0; i < numItems; i++)
             {
                 ReplaceReference(offset, "itm");
-                offset += 0x0E;
+                offset += 0x14;
             }
         }
 
