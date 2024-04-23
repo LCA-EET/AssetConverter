@@ -77,7 +77,10 @@ namespace AssetConverter
         }
         public static void AddPVRZ(string oldPath, string newPath)
         {
-            _pvrzTable.Add(oldPath, newPath);
+            if (!_pvrzTable.ContainsKey(oldPath))
+            {
+                _pvrzTable.Add(oldPath, newPath);
+            }
         }
         public static void RegisterRevisedScriptName(string oldName, string newName)
         {
@@ -291,6 +294,8 @@ namespace AssetConverter
                                 loadedAsset = new BAF(assetPath, postConversionPath, resRef);
                                 break;
                             case "bam":
+                                loadedAsset = new BAM(assetPath, postConversionPath, resRef);
+                                break;
                             case "bmp":
                             case "eff":
                                 loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);

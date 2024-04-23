@@ -40,10 +40,10 @@ namespace AssetConverter
             switch (effectType)
             {
                 case 146: // cast spell
-                    ReplaceReference(offset + 20, "spl");
+                    ReplaceReference(offset + 0x14, "spl");
                     break;
                 case 177: // Use EFF File
-                    ReplaceReference(offset + 20, "eff");
+                    ReplaceReference(offset + 0x14, "eff");
                     break;
             }
         }
@@ -54,15 +54,17 @@ namespace AssetConverter
 
             for (int i = 0; i < numAbilities; i++)
             {
-                ReplaceReference(abilitiesOffset + 4, "bam");
-                int numEffects = BitConverter.ToInt16(_contents, abilitiesOffset + 30);
-                int firstEffectIndex = BitConverter.ToInt16(_contents, abilitiesOffset + 32);
+                ReplaceReference(abilitiesOffset + 0x4, "bam");
+                
+                int numEffects = BitConverter.ToInt16(_contents, abilitiesOffset + 0x1E);
+                int firstEffectIndex = BitConverter.ToInt16(_contents, abilitiesOffset + 0x20);
                 int localOffset = _effectStartOffset + (firstEffectIndex * 0x30);
                 for (int j = 0; j < numEffects; j++)
                 {
                     ProcessEffect(localOffset);
                     localOffset += 0x30;
                 }
+                
                 abilitiesOffset += 0x38;
             }
         }
