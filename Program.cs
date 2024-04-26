@@ -51,7 +51,7 @@ namespace AssetConverter
                 );
             MusicTable.Initialize(paramFile.MusicIndex, paramFile.SongListPath, paramFile.MusicDirectory);
             Weidu.WeiduGenerateTLK();
-
+            AssetRegister.Initialize();
             ResourceManager.ProcessResources();
         }    
         

@@ -8,20 +8,24 @@ namespace AssetConverter
 {
     public static class MasterTRA
     {
-        private static Dictionary<int, TRARef> _destinationReferences;
+        private static Dictionary<string, int> _addedText;
         private static Dictionary<int, TRARef> _tlkReferences;
         private static Dictionary<int, TRARef> _stringList;
-        private static int _firstIndex = 10000;
-        public static void LoadDestinationTRA(string path)
-        {
-            _destinationReferences = new Dictionary<int, TRARef>();
+        private static int _nextIndex = 10000;
 
-        }
         public static void InitializeMasterTRA(string tlkFile) 
         {
-            _firstIndex = (int)Program.paramFile.FirstTRAIndex;
+            if (!File.Exists(Program.paramFile.TRAIndexPath))
+            {
+                _nextIndex = (int)Program.paramFile.FirstTRAIndex;
+            }
+            else
+            {
+                _nextIndex = int.Parse(File.ReadAllText(Program.paramFile.TRAIndexPath));
+            }
             _stringList = new Dictionary<int, TRARef>();
             _tlkReferences = new Dictionary<int, TRARef>();
+            _addedText = new Dictionary<string, int>();  
             string[] lines = File.ReadAllLines(tlkFile);
             for (int i =0; i < lines.Length; i++)
             {
@@ -62,40 +66,23 @@ namespace AssetConverter
         private static void AddStringReference(int referenceID, string toAdd)
         {
             _tlkReferences.Add(referenceID, new TRARef(referenceID, toAdd));
-            /*
-            int startIndex = toAdd.IndexOf('~');
-            int lastIndex = toAdd.LastIndexOf('~');
-            string substring = toAdd.Substring(startIndex, lastIndex - startIndex);
-            int startBracket = 0;
-            int endBracket = 0;
-            if (substring.Contains('[') && substring.Contains(']'))
-            {
-                startBracket = substring.IndexOf('[');
-                endBracket = substring.LastIndexOf(']');
-                toAdd = toAdd.Replace(substring.Substring(startBracket, (endBracket - startBracket) + 1), "").Trim();
-            }
-            string[] split = toAdd.Split("~");
-            split[1] = split[1].Trim();
-            if (split[2].Contains("["))
-            {
-                startBracket = split[2].IndexOf('[');
-                endBracket = split[2].LastIndexOf(']');
-                string wavToReplace = split[2].Substring(startBracket + 1, (endBracket - startBracket) -1);
-                byte[] replacementReference = ResourceManager.TrimTrailingNullBytes(ResourceManager.AddResourceToQueue(wavToReplace.ToLower(), "wav"));
-                split[2] = "[" + Encoding.Latin1.GetString(replacementReference) + "]";
-            }
-            toAdd = "~" + split[1] + "~ " + split[2];
-            
-            _tlkReferences.Add(referenceID, toAdd);
-            */
         }
         public static int ConvertToReference(TRARef reference)
         {
-            int indexToReturn = _firstIndex + (int)_stringList.Count;
-            reference.ReReference(indexToReturn);
-            _stringList.Add(indexToReturn, reference);
-            
-            return indexToReturn;
+            string tlk = reference.TLKString;
+            if (_addedText.ContainsKey(tlk))
+            {
+                return _addedText[tlk];
+            }
+            else
+            {
+                reference.ReReference(_nextIndex);
+                _stringList.Add(_nextIndex, reference);
+                int toReturn = _nextIndex;
+                _addedText.Add(tlk, toReturn);
+                _nextIndex++;
+                return toReturn;
+            }
         }
         public static TRARef GetTRAReferenced_Used(int reference)
         {
@@ -114,7 +101,7 @@ namespace AssetConverter
             return null;
         }
         
-        public static void WriteTRA(string postConversionDirectory)
+        public static void WriteTRA()
         {
             string output = "";
             foreach(int key in _stringList.Keys)
@@ -126,7 +113,9 @@ namespace AssetConverter
                 }
                 output += "@" + key + " = " + text + Environment.NewLine;
             }
-            File.WriteAllText(postConversionDirectory + "generated.tra", output);
+            //File.WriteAllText(postConversionDirectory + "generated.tra", output);
+            File.AppendAllText(Program.paramFile.CombinedTRAPath, output);
+            File.WriteAllText(Program.paramFile.TRAIndexPath, _nextIndex.ToString());
         }
     }
 }

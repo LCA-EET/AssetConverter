@@ -131,20 +131,28 @@ namespace AssetConverter
                 if (resourceLower.StartsWith("!"))
                 {
                     _doNotLoad.Add(resourceLower.Substring(1));
-                    //Console.WriteLine(resourceLower);
-                    //Console.ReadLine();
                 }
                 else
                 {
-                    string[] splitResource = resourceLower.Split('.');
-                    AddResourceToQueue(splitResource[0], splitResource[1], false);
+                    if(resourceLower.Trim() != "")
+                    {
+                        try
+                        {
+                            string[] splitResource = resourceLower.Split('.');
+                            AddResourceToQueue(splitResource[0], splitResource[1], false);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("ERROR: " + resourceLower);
+                        }
+                    }
                 }
             }
             LoadResources();
             
             GenerateTP2();
             
-            MasterTRA.WriteTRA(_postConversionDirectory);
+            MasterTRA.WriteTRA();
         }
         private static void GenerateTP2()
         {
@@ -228,10 +236,11 @@ namespace AssetConverter
                 }
             }
             File.WriteAllText(_postConversionDirectory + "generated.tph", output);
-            File.WriteAllText(_postConversionDirectory + "referenceTable.txt", refoutput);
-            File.Copy(Program.paramFile.QueuePath, _postConversionDirectory + "queue.txt");
-            File.Copy(Program.ParamPath, _postConversionDirectory + "params.in");
-
+            //File.WriteAllText(_postConversionDirectory + "referenceTable.txt", refoutput);
+            //File.Copy(Program.paramFile.QueuePath, _postConversionDirectory + "queue.txt");
+            //File.Copy(Program.ParamPath, _postConversionDirectory + "params.in");
+            
+            AssetRegister.WriteRegister();
         }
         private static void DirectoryContentsToTP2(string dirPath, string fileType, ref string tp2output)
         {
@@ -473,26 +482,35 @@ namespace AssetConverter
                 //Console.Read();
                 return new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             }
-            if (!_resourceQueue.ContainsKey(resourceIDandType))
+            byte[] importedReference = null;
+            if(AssetRegister.AlreadyImported(resourceType, resourceID, ref importedReference))
             {
-                if (!_assetTable.ContainsKey(resourceType))
-                {
-                    _assetTable.Add(resourceType, new Dictionary<string, IEResRef>());
-                }
-                if (!_assetTable[resourceType].ContainsKey(resourceID))
-                {
-                    IEResRef toAdd = new IEResRef(resourceID, resourceType, skipLoad, nextResourceID);
-                    _resourceQueue.Add(resourceIDandType, toAdd);
-                    return toAdd.ReferenceBytes;
-                }
-                else
-                {
-                    return _assetTable[resourceType][resourceID].ReferenceBytes;
-                }
+                return importedReference;
             }
             else
             {
-                return _resourceQueue[resourceIDandType].ReferenceBytes;
+                if (!_resourceQueue.ContainsKey(resourceIDandType))
+                {
+                    if (!_assetTable.ContainsKey(resourceType))
+                    {
+                        _assetTable.Add(resourceType, new Dictionary<string, IEResRef>());
+                    }
+                    if (!_assetTable[resourceType].ContainsKey(resourceID))
+                    {
+                        IEResRef toAdd = new IEResRef(resourceID, resourceType, skipLoad, nextResourceID);
+                        _resourceQueue.Add(resourceIDandType, toAdd);
+                        
+                        return toAdd.ReferenceBytes;
+                    }
+                    else
+                    {
+                        return _assetTable[resourceType][resourceID].ReferenceBytes;
+                    }
+                }
+                else
+                {
+                    return _resourceQueue[resourceIDandType].ReferenceBytes;
+                }
             }
         }
         public static byte[] AddResourceToQueue(string resourceID, string resourceType, bool skipLoad)

@@ -36,6 +36,7 @@ namespace AssetConverter
                 }
             }
             _newReferenceID = Encoding.Latin1.GetString(resourceID).Substring(0, 8 - charsToTrim);
+            AssetRegister.AddToRegister(ResourceType,OldReferenceID, NewReferenceID);
         }
         public bool SkipLoad
         {

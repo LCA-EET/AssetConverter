@@ -81,7 +81,7 @@ namespace AssetConverter
         {
             get
             {
-                if (_wavIncluded)
+                if (_wavIncluded && (_newWavID.Length > 0))
                 {
                     return _text + "[" + _newWavID + "]";
                 }

@@ -30,6 +30,9 @@ namespace AssetConverter
 
         public bool IncludeAreaScripts { get; set; }
         public string DestinationAssetList { get; set; }
+        public string ImportedAssetPath { get; set; }
+        public string TRAIndexPath { get; set; }
+        public string CombinedTRAPath { get; set; }
         public ParamFile(string filePath) 
         {
             if (!File.Exists(filePath))
@@ -85,6 +88,9 @@ namespace AssetConverter
                 //Console.ReadLine();
                 DestinationAssetList = lines[14];
                 IncludeDialogs = int.Parse(lines[15]) == 1 ? true : false;
+                ImportedAssetPath = lines[16];
+                TRAIndexPath = lines[17];
+                CombinedTRAPath = lines[18];
             }
             catch(Exception ex)
             {

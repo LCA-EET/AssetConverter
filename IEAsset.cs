@@ -15,6 +15,7 @@ namespace AssetConverter
             _preConversionPath = preConversionPath;
             _postConversionPath = postConversionPath;
             _contents = File.ReadAllBytes(_preConversionPath);
+            
             //_idIndex = 0;
         }
         public IEResRef OwningReference
@@ -49,7 +50,7 @@ namespace AssetConverter
         public string ReplaceReference(int offset, string type, byte[] newResourceID, bool skipLoad)
         {
             string reference = DetermineReferenceFromBytes(_contents, offset);
-            if(type != "baf" && DAL.AssetExistsInDestination(reference, type))
+            if (type != "baf" && DAL.AssetExistsInDestination(reference, type))
             {
                 return reference;
             }
@@ -59,6 +60,7 @@ namespace AssetConverter
                 return reference;
             }
             newReference = ResourceManager.AddResourceToQueue(reference, type, newResourceID, skipLoad);
+           
             for (int j = 0; j < newReference.Length; j++)
             {
                 _contents[offset + j] = newReference[j];
@@ -66,10 +68,6 @@ namespace AssetConverter
             string toReturn = DetermineReferenceFromBytes(newReference, 0);
             //Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
             return toReturn;
-        }
-        public string ReplaceReference(int offset, string type, bool skip)
-        {
-            return ReplaceReference(offset, type, null, skip);
         }
         public string ReplaceReference(int offset, string type)
         {
