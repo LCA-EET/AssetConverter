@@ -54,13 +54,12 @@ namespace AssetConverter
             {
                 return reference;
             }
-            byte[] newReference = null;
-            if (reference == "" || reference == "None")
+            if (reference == "" || reference.ToLower().Trim() == "none")
             {
                 return reference;
             }
+            byte[] newReference = null;
             newReference = ResourceManager.AddResourceToQueue(reference, type, newResourceID, skipLoad);
-           
             for (int j = 0; j < newReference.Length; j++)
             {
                 _contents[offset + j] = newReference[j];
