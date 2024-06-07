@@ -253,9 +253,9 @@ namespace AssetConverter
         }
         public override string ToTP2String()
         {
-            string toReturn = "ACTION_IF (FILE_EXISTS_IN_GAME ~" + _owningReference.NewReferenceID + "." + _owningReference.ResourceType + "~) BEGIN" + Environment.NewLine;
-            toReturn += "\t//PRINT ~Area already exists: " + _owningReference.NewReferenceID + ". Skipping...~" + Environment.NewLine;
-            toReturn += "END ELSE BEGIN" + Environment.NewLine;
+            string toReturn = "ACTION_IF NOT(FILE_EXISTS_IN_GAME ~" + _owningReference.NewReferenceID + "." + _owningReference.ResourceType + "~) BEGIN" + Environment.NewLine;
+            ///toReturn += "\t//PRINT ~Area already exists: " + _owningReference.NewReferenceID + ". Skipping...~" + Environment.NewLine;
+            //toReturn += "END ELSE BEGIN" + Environment.NewLine;
             toReturn += "\t" + base.ToTP2String();
             toReturn += _stringReferences.TP2String();
             toReturn += SongList;

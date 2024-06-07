@@ -171,8 +171,8 @@ namespace AssetConverter
                     //output += "PRINT ~Compiling dialogs...~" + Environment.NewLine;
                     output += "COMPILE EVALUATE_BUFFER ~" + Program.paramFile.ModFolder + "d~" + Environment.NewLine;
                 }
-                output += "//" + key + " files" + Environment.NewLine;
-                output += "//===================" + Environment.NewLine;
+                //output += "//" + key + " files" + Environment.NewLine;
+                //output += "//===================" + Environment.NewLine;
                 Dictionary<string, IEResRef> innerTable = _assetTable[key];
                 if(key == "baf" && _assetTable[key].Count > 0)
                 {
@@ -185,12 +185,14 @@ namespace AssetConverter
                     //output += "PRINT ~Compiling scripts...~" + Environment.NewLine;
                     
                 }
-               // output += "PRINT ~Processing " + key + " files...~" + Environment.NewLine;
+                // output += "PRINT ~Processing " + key + " files...~" + Environment.NewLine;
+                HashSet<string> bulkCopy = new HashSet<string>() { "bam", "dlg", "baf", "wav", "pvrz", "tis", "wed" };
                 foreach (IEResRef resRef in innerTable.Values)
                 {
                     //output += "PRINT ~Processing " + resRef.NewReferenceID +"." + resRef.ResourceType +"~" + Environment.NewLine;
                     refoutput += resRef.OldReferenceID + "." + resRef.ResourceType + "::" + resRef.NewReferenceID + "." + resRef.ResourceType +  Environment.NewLine;
-                    if(resRef.ResourceType != "dlg" && resRef.ResourceType != "baf")
+
+                    if (!bulkCopy.Contains(resRef.ResourceType))
                     {
                         output += resRef.LoadedAsset.ToTP2String();
                     }
@@ -203,8 +205,14 @@ namespace AssetConverter
             {
                 if(!Directory.Exists(_postConversionDirectory + "pvrz"))
                 {
-                    output += "//{ PVRZ" + Environment.NewLine; ;
                     Directory.CreateDirectory(_postConversionDirectory + "pvrz");
+                    foreach (string pvrzFile in _pvrzTable.Keys)
+                    {
+                        File.Copy(pvrzFile, _pvrzTable[pvrzFile]);
+                    }
+                    /*
+                    output += "//{ PVRZ" + Environment.NewLine; ;
+                    
                     foreach(string pvrzFile in _pvrzTable.Keys)
                     {
                         File.Copy(pvrzFile, _pvrzTable[pvrzFile]);
@@ -212,22 +220,19 @@ namespace AssetConverter
                         output += "\tCOPY ~" + Program.paramFile.ModFolder + "pvrz\\" + Path.GetFileName(_pvrzTable[pvrzFile]) + "~ ~override~" + Environment.NewLine; 
                     }
                     output += "//}" + Environment.NewLine;
+                    */
                 }
             }
-            
-            string mosDirectory = _postConversionDirectory + "mos\\";
-            string bmpDirectory = _postConversionDirectory + "bmp\\";
-            string bafDirectory = _postConversionDirectory + "baf\\";
-            if (Directory.Exists(mosDirectory))
+            string[] componentDirs = { "bam", "bmp", "mos", "pvrz", "tis", "wav", "wed" };
+            for(int i = 0; i < componentDirs.Length; i++)
             {
-                //output += "PRINT ~Copying MOS...~" + Environment.NewLine;
-                DirectoryContentsToTP2(mosDirectory, "mos", ref output);
+                string dirPath = _postConversionDirectory + componentDirs[i];
+                if (Directory.Exists(dirPath))
+                {
+                    DirectoryContentsToTP2(dirPath, componentDirs[i], ref output);
+                }
             }
-            if(Directory.Exists(bmpDirectory))
-            {
-                //output += "PRINT ~Copying BMP...~" + Environment.NewLine;
-                DirectoryContentsToTP2(bmpDirectory, "bmp", ref output);
-            }
+            string bafDirectory = _postConversionDirectory + "baf";
             if (Directory.Exists(bafDirectory))
             {
                 if(Directory.GetFiles(bafDirectory).Length > 0)
@@ -250,6 +255,7 @@ namespace AssetConverter
                 tp2output += Environment.NewLine + "//" + fileType + " files." + Environment.NewLine;
                 tp2output += "//=========================" + Environment.NewLine;
             }
+            /*
             foreach (string file in files)
             {
                 string[] split = file.Split("\\");
@@ -257,6 +263,8 @@ namespace AssetConverter
                 tp2output += "COPY ~" + _modFolder + split[split.Length - 2] + "\\" + split[split.Length - 1] + "~ ~override~" + Environment.NewLine;
                 //tp2output += "END";
             }
+            */
+            tp2output += "COPY ~" + _modFolder + fileType + "~ ~override~" + Environment.NewLine;
         }
         public static void RegisterDialog(string oldName, string newName)
         {
