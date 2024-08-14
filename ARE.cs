@@ -118,6 +118,7 @@ namespace AssetConverter
             int offset = BitConverter.ToInt32(_contents, 0x70);
             for(int i = 0; i < numContainers; i++)
             {
+                ReplaceReference(offset + 72, "baf");
                 ReplaceReference(offset + 120, "itm");
                 offset += 0xC0;
             }
