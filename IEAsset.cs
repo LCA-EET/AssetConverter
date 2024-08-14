@@ -55,7 +55,7 @@ namespace AssetConverter
             {
                 return reference;
             }
-            if (!skipNoneCheck && (reference == "" || reference.ToLower().Trim() == "none"))
+            if (reference == "" || reference.ToLower().Trim() == "none")
             {
                 return reference;
             }
