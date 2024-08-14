@@ -39,7 +39,7 @@ namespace AssetConverter
                 {
                     asReferenceBytes.Add(0x00);
                 }
-                ReplaceReference(0x94, "baf", asReferenceBytes.ToArray(), true); // Area Script
+                ReplaceReference(0x94, "baf", asReferenceBytes.ToArray(), true, true); // Area Script
                 if(!Directory.Exists(Program.paramFile.PostconversionDirectory + "baf"))
                 {
                     Directory.CreateDirectory(Program.paramFile.PostconversionDirectory + "baf");
