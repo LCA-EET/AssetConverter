@@ -47,14 +47,15 @@ namespace AssetConverter
         {
             return ReplaceReference(offset, type, newResourceID, false);
         }
-        public string ReplaceReference(int offset, string type, byte[] newResourceID, bool skipLoad)
+
+        public string ReplaceReference(int offset, string type, byte[] newResourceID, bool skipLoad, bool skipNoneCheck)
         {
             string reference = DetermineReferenceFromBytes(_contents, offset);
             if (type != "baf" && DAL.AssetExistsInDestination(reference, type))
             {
                 return reference;
             }
-            if (reference == "" || reference.ToLower().Trim() == "none")
+            if (!skipNoneCheck && (reference == "" || reference.ToLower().Trim() == "none"))
             {
                 return reference;
             }
@@ -67,6 +68,10 @@ namespace AssetConverter
             string toReturn = DetermineReferenceFromBytes(newReference, 0);
             //Console.WriteLine("Reference found: " + reference + ". To be replaced with: " + toReturn);
             return toReturn;
+        }
+        public string ReplaceReference(int offset, string type, byte[] newResourceID, bool skipLoad)
+        {
+            return ReplaceReference(offset, type, newResourceID, skipLoad, false);
         }
         public string ReplaceReference(int offset, string type)
         {
