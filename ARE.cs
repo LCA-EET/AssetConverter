@@ -46,7 +46,6 @@ namespace AssetConverter
                 }
                 File.WriteAllBytes(Program.paramFile.PostconversionDirectory + "baf\\" + newPrefix + ".baf", new byte[] {  });
             }
-            
             ReplaceReference(0x08, "wed", _owningReference.ReferenceBytes); // WED
             ReplaceAnimations();
             GenerateSongList();

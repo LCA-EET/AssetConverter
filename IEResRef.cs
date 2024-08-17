@@ -38,6 +38,27 @@ namespace AssetConverter
             _newReferenceID = Encoding.Latin1.GetString(resourceID).Substring(0, 8 - charsToTrim);
             AssetRegister.AddToRegister(ResourceType,OldReferenceID, NewReferenceID);
         }
+        public string RelativeAssetPath
+        {
+            get
+            {
+                return ResourceType + "\\" + OldReferenceID + "." + ResourceType;
+            }
+        }
+        public string RelativeConversionPath
+        {
+            get
+            {
+                return ResourceType + "\\" + NewReferenceID + "." + ResourceType;
+            }
+        }
+        public bool IsNightType
+        {
+            get
+            {
+                return ResourceType == "wed";
+            }
+        }
         public bool SkipLoad
         {
             get
@@ -90,6 +111,10 @@ namespace AssetConverter
             {
                 _loadedAsset = value;
             }
+        }
+        public override string ToString()
+        {
+            return OldReferenceID +", " + NewReferenceID + ", " + ResourceType;
         }
     }
 }

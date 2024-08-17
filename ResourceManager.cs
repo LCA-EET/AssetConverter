@@ -284,6 +284,89 @@ namespace AssetConverter
                 return false;
             }
         }
+        private static void LoadAsset(string assetPath, string postConversionPath, IEResRef resRef)
+        {
+            IEAsset loadedAsset = null;
+            if (File.Exists(assetPath))
+            {
+                switch (resRef.ResourceType)
+                {
+                    case "are":
+                        loadedAsset = new ARE(assetPath, postConversionPath, resRef);
+                        break;
+                    case "baf":
+                        loadedAsset = new BAF(assetPath, postConversionPath, resRef);
+                        break;
+                    case "bam":
+                        loadedAsset = new BAM(assetPath, postConversionPath, resRef);
+                        break;
+                    case "bmp":
+                    case "eff":
+                        loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                        break;
+                    case "tis":
+                        loadedAsset = new TIS(assetPath, postConversionPath, resRef);
+                        break;
+                    case "wav":
+                        if (Program.paramFile.IncludeWAVs)
+                        {
+                            loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
+                        }
+                        break;
+                    case "wed":
+                        loadedAsset = new WED(assetPath, postConversionPath, resRef);
+                        if (!Directory.Exists(_postConversionDirectory + "bmp"))
+                        {
+                            Directory.CreateDirectory(_postConversionDirectory + "bmp");
+                        }
+                        List<string> wedBMPs = new List<string>()
+                                {
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ht.bmp",
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "lm.bmp",
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ln.bmp",
+                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "sr.bmp",
+                                };
+                        foreach (string bmp in wedBMPs)
+                        {
+                            if (File.Exists(bmp))
+                            {
+                                File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
+                            }
+                        }
+                        if (!Directory.Exists(_postConversionDirectory + "mos"))
+                        {
+                            Directory.CreateDirectory(_postConversionDirectory + "mos");
+                        }
+                        string wedMOSPath = _preConversionDirectory + "mos\\" + resRef.OldReferenceID + ".mos";
+
+                        if (File.Exists(wedMOSPath))
+                        {
+                            File.Copy(wedMOSPath, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + ".mos", true);
+                        }
+                        break;
+                    case "spl":
+                        loadedAsset = new SPL(assetPath, postConversionPath, resRef);
+                        break;
+                    case "sto":
+                        loadedAsset = new STO(assetPath, postConversionPath, resRef);
+                        break;
+                    case "itm":
+                        loadedAsset = new ITM(assetPath, postConversionPath, resRef);
+                        break;
+                    case "dlg":
+                        loadedAsset = new DLG(assetPath, postConversionPath, resRef);
+                        break;
+                    case "cre":
+                        loadedAsset = new CRE(assetPath, postConversionPath, resRef);
+                        break;
+                }
+            }
+            if (loadedAsset != null)
+            {
+                resRef.LoadedAsset = loadedAsset;
+                _assetTable[resRef.ResourceType].Add(resRef.OldReferenceID, resRef);
+            }
+        }
         private static void LoadResources()
         {
             string toLoad;
@@ -292,106 +375,26 @@ namespace AssetConverter
             foreach (IEResRef resRef in toProcess)
             {
                 newlyLoaded.Add(resRef.OldReferenceID + "." + resRef.ResourceType);
+                
                 if (resRef.SkipLoad == false)
                 {
                     //Console.WriteLine("Loading reference " + resRef.OldReferenceID + "." + resRef.ResourceType);
-                    
-                    string assetPath = _preConversionDirectory + resRef.ResourceType + "\\" + resRef.OldReferenceID + "." + resRef.ResourceType;
-                    string postConversionPath = _postConversionDirectory + resRef.ResourceType + "\\" + resRef.NewReferenceID + "." + resRef.ResourceType;
-                    IEAsset loadedAsset = null;
 
-                    if (File.Exists(assetPath))
+                    string assetPath = _preConversionDirectory + resRef.RelativeAssetPath;
+                    string postConversionPath = _postConversionDirectory + resRef.RelativeConversionPath;
+
+                    LoadAsset(assetPath, postConversionPath, resRef);
+                    
+                    if (resRef.IsNightType)
                     {
-                        switch (resRef.ResourceType)
-                        {
-                            case "are":
-                                loadedAsset = new ARE(assetPath, postConversionPath, resRef);
-                                break;
-                            case "baf":
-                                loadedAsset = new BAF(assetPath, postConversionPath, resRef);
-                                break;
-                            case "bam":
-                                loadedAsset = new BAM(assetPath, postConversionPath, resRef);
-                                break;
-                            case "bmp":
-                            case "eff":
-                                loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
-                                break;
-                            case "tis":
-                                loadedAsset = new TIS(assetPath, postConversionPath, resRef);
-                                break;
-                            case "wav":
-                                if (Program.paramFile.IncludeWAVs)
-                                {
-                                    loadedAsset = new IEAsset(assetPath, postConversionPath, resRef);
-                                }
-                                break;
-                            case "wed":
-                                loadedAsset = new WED(assetPath, postConversionPath, resRef);
-                                if (!Directory.Exists(_postConversionDirectory + "bmp"))
-                                {
-                                    Directory.CreateDirectory(_postConversionDirectory + "bmp");
-                                }
-                                List<string> wedBMPs = new List<string>()
-                                {
-                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ht.bmp",
-                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "lm.bmp",
-                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "ln.bmp",
-                                    _preConversionDirectory + "bmp\\" + resRef.OldReferenceID + "sr.bmp",
-                                };
-                                foreach (string bmp in wedBMPs)
-                                {
-                                    if (File.Exists(bmp))
-                                    {
-                                        File.Copy(bmp, _postConversionDirectory + "bmp\\" + resRef.NewReferenceID + bmp.Substring(bmp.Length - 6, 6), true);
-                                    }
-                                }
-                                if (!Directory.Exists(_postConversionDirectory + "mos"))
-                                {
-                                    Directory.CreateDirectory(_postConversionDirectory + "mos");
-                                }
-                                List<string> wedMOS = new List<string>()
-                                {
-                                    _preConversionDirectory + "mos\\" + resRef.OldReferenceID + ".mos",
-                                    _preConversionDirectory + "mos\\" + resRef.OldReferenceID + "n.mos",
-                                };
-                                foreach (string mos in wedMOS)
-                                {
-                                    if (File.Exists(mos))
-                                    {
-                                        if (mos.EndsWith("n.mos"))
-                                        {
-                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + "n.mos", true);
-                                        }
-                                        else
-                                        {
-                                            File.Copy(mos, _postConversionDirectory + "mos\\" + resRef.NewReferenceID + ".mos", true);
-                                        }
-                                    }
-                                }
-                                break;
-                            case "spl":
-                                loadedAsset = new SPL(assetPath, postConversionPath, resRef);
-                                break;
-                            case "sto":
-                                loadedAsset = new STO(assetPath, postConversionPath, resRef);
-                                break;
-                            case "itm":
-                                loadedAsset = new ITM(assetPath, postConversionPath, resRef);
-                                break;
-                            case "dlg":
-                                loadedAsset = new DLG(assetPath, postConversionPath, resRef);
-                                break;
-                            case "cre":
-                                loadedAsset = new CRE(assetPath, postConversionPath, resRef);
-                                break;
-                        }
+
+                        IEResRef nightRef = new IEResRef(resRef.OldReferenceID + "n", resRef.ResourceType, false, PadBytes(Encoding.Latin1.GetBytes(resRef.NewReferenceID + "n").ToList()));
+                        newlyLoaded.Add(nightRef.OldReferenceID + "." + nightRef.ResourceType);
+                        string nightAssetPath = _preConversionDirectory + nightRef.RelativeAssetPath;
+                        string nightConversionPath = _postConversionDirectory + nightRef.RelativeConversionPath;
+                        LoadAsset(nightAssetPath, nightConversionPath, nightRef);
                     }
-                    if (loadedAsset != null)
-                    {
-                        resRef.LoadedAsset = loadedAsset;
-                        _assetTable[resRef.ResourceType].Add(resRef.OldReferenceID, resRef);
-                    }
+                    
                 }
                 else
                 {
@@ -465,15 +468,19 @@ namespace AssetConverter
             _nextIDTable[(resourceType)] = toReturn + 1;
             return toReturn;
         }
+        private static byte[] PadBytes(List<byte> referenceBytes)
+        {
+            while (referenceBytes.Count < 8)
+            {
+                referenceBytes.Add(0x00);
+            }
+            return referenceBytes.ToArray();
+        }
         private static byte[] GetNextResourceID(string resourceType)
         {
             string toReturn = _filePrefix.ToLower() + GetNextID(resourceType);
-            List<byte> toReturnBytes = Encoding.Latin1.GetBytes(toReturn).ToList();
-            while(toReturnBytes.Count < 8)
-            {
-                toReturnBytes.Add(0x00);
-            }
-            return toReturnBytes.ToArray();
+            return PadBytes(Encoding.Latin1.GetBytes(toReturn).ToList());
+
         }
         public static byte[] AddResourceToQueue(string resourceID, string resourceType, byte[] nextResourceID, bool skipLoad)
         {
@@ -521,6 +528,7 @@ namespace AssetConverter
                 }
             }
         }
+        
         public static byte[] AddResourceToQueue(string resourceID, string resourceType, bool skipLoad)
         {
             return AddResourceToQueue(resourceID, resourceType, GetNextResourceID(resourceType), skipLoad);
